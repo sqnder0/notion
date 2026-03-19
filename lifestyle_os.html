@@ -3,1702 +3,1043 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lifestyle OS — Personal Operating System</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<title>Lifestyle OS v2 — 15-Minute Precision System</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500;700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #080b10;
-    --surface: #0d1117;
-    --surface2: #131920;
-    --border: #1e2a36;
-    --accent: #e8a020;
-    --accent2: #c46a00;
-    --accent-dim: rgba(232, 160, 32, 0.12);
-    --accent-glow: rgba(232, 160, 32, 0.25);
-    --text: #d4dde8;
-    --text-dim: #6b7f94;
-    --text-bright: #eef3f9;
-    --red: #e03a3a;
-    --green: #2fb67a;
-    --blue: #3a8ee0;
-    --mono: 'Space Mono', monospace;
-    --display: 'Bebas Neue', sans-serif;
-    --body: 'DM Sans', sans-serif;
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--body);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  /* NOISE TEXTURE OVERLAY */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0.4;
-  }
-
-  /* TOP BAR */
-  .topbar {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    background: rgba(8, 11, 16, 0.95);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border);
-    padding: 0 2rem;
-    display: flex;
-    align-items: center;
-    gap: 2rem;
-    height: 56px;
-  }
-
-  .logo {
-    font-family: var(--display);
-    font-size: 1.4rem;
-    letter-spacing: 0.1em;
-    color: var(--accent);
-    white-space: nowrap;
-    flex-shrink: 0;
-  }
-
-  .logo span {
-    color: var(--text-dim);
-    font-size: 0.65rem;
-    font-family: var(--mono);
-    display: block;
-    letter-spacing: 0.2em;
-    line-height: 1;
-    margin-top: -2px;
-  }
-
-  .nav {
-    display: flex;
-    gap: 0;
-    overflow-x: auto;
-    scrollbar-width: none;
-    flex: 1;
-  }
-
-  .nav::-webkit-scrollbar { display: none; }
-
-  .nav-btn {
-    background: none;
-    border: none;
-    color: var(--text-dim);
-    font-family: var(--mono);
-    font-size: 0.62rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    padding: 0 1rem;
-    height: 56px;
-    cursor: pointer;
-    white-space: nowrap;
-    border-bottom: 2px solid transparent;
-    transition: all 0.2s;
-    position: relative;
-  }
-
-  .nav-btn:hover { color: var(--text); }
-
-  .nav-btn.active {
-    color: var(--accent);
-    border-bottom-color: var(--accent);
-  }
-
-  /* MAIN */
-  .main {
-    max-width: 960px;
-    margin: 0 auto;
-    padding: 2.5rem 2rem 5rem;
-    position: relative;
-    z-index: 1;
-  }
-
-  /* SECTIONS */
-  .section { display: none; animation: fadeIn 0.25s ease; }
-  .section.active { display: block; }
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  /* SECTION HEADER */
-  .section-header {
-    margin-bottom: 2.5rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .section-tag {
-    font-family: var(--mono);
-    font-size: 0.6rem;
-    letter-spacing: 0.25em;
-    color: var(--accent);
-    text-transform: uppercase;
-    margin-bottom: 0.5rem;
-  }
-
-  .section-title {
-    font-family: var(--display);
-    font-size: clamp(2.2rem, 5vw, 3.5rem);
-    letter-spacing: 0.05em;
-    color: var(--text-bright);
-    line-height: 1;
-  }
-
-  .section-subtitle {
-    margin-top: 0.75rem;
-    color: var(--text-dim);
-    font-size: 0.9rem;
-    font-weight: 300;
-    line-height: 1.6;
-    max-width: 600px;
-  }
-
-  /* CARDS */
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 1.5rem;
-    margin-bottom: 1rem;
-  }
-
-  .card-title {
-    font-family: var(--mono);
-    font-size: 0.65rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--accent);
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .card-title::before {
-    content: '';
-    display: block;
-    width: 6px;
-    height: 6px;
-    background: var(--accent);
-    border-radius: 1px;
-    flex-shrink: 0;
-  }
-
-  /* GRID */
-  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
-  @media (max-width: 640px) {
-    .grid-2, .grid-3 { grid-template-columns: 1fr; }
-  }
-
-  /* RULE BLOCK */
-  .rule {
-    display: flex;
-    gap: 0.75rem;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid var(--border);
-    align-items: flex-start;
-  }
-
-  .rule:last-child { border-bottom: none; }
-
-  .rule-num {
-    font-family: var(--mono);
-    font-size: 0.6rem;
-    color: var(--accent);
-    padding-top: 3px;
-    flex-shrink: 0;
-    width: 24px;
-  }
-
-  .rule-text {
-    font-size: 0.875rem;
-    line-height: 1.6;
-    color: var(--text);
-  }
-
-  .rule-text strong { color: var(--text-bright); font-weight: 600; }
-
-  /* BADGE */
-  .badge {
-    display: inline-block;
-    font-family: var(--mono);
-    font-size: 0.55rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    padding: 3px 8px;
-    border-radius: 3px;
-    font-weight: 700;
-  }
-
-  .badge-red { background: rgba(224,58,58,0.15); color: var(--red); border: 1px solid rgba(224,58,58,0.3); }
-  .badge-green { background: rgba(47,182,122,0.12); color: var(--green); border: 1px solid rgba(47,182,122,0.3); }
-  .badge-amber { background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(232,160,32,0.3); }
-  .badge-blue { background: rgba(58,142,224,0.12); color: var(--blue); border: 1px solid rgba(58,142,224,0.3); }
-
-  /* TIMELINE */
-  .timeline { position: relative; }
-
-  .tl-item {
-    display: flex;
-    gap: 1rem;
-    padding: 0.6rem 0;
-    position: relative;
-  }
-
-  .tl-time {
-    font-family: var(--mono);
-    font-size: 0.65rem;
-    color: var(--accent);
-    width: 60px;
-    flex-shrink: 0;
-    padding-top: 3px;
-    letter-spacing: 0.05em;
-  }
-
-  .tl-bar {
-    width: 2px;
-    background: var(--border);
-    position: relative;
-    flex-shrink: 0;
-    margin: 4px 0;
-  }
-
-  .tl-bar::before {
-    content: '';
-    position: absolute;
-    top: 4px;
-    left: -3px;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--accent);
-    border: 2px solid var(--bg);
-  }
-
-  .tl-content { flex: 1; padding-bottom: 0.5rem; }
-
-  .tl-label {
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: var(--text-bright);
-    margin-bottom: 0.2rem;
-  }
-
-  .tl-note {
-    font-size: 0.75rem;
-    color: var(--text-dim);
-    line-height: 1.5;
-  }
-
-  /* HIGHLIGHT BOX */
-  .highlight {
-    background: var(--accent-dim);
-    border: 1px solid rgba(232,160,32,0.25);
-    border-left: 3px solid var(--accent);
-    border-radius: 0 6px 6px 0;
-    padding: 1rem 1.25rem;
-    margin: 1rem 0;
-  }
-
-  .highlight p {
-    font-size: 0.875rem;
-    line-height: 1.7;
-    color: var(--text);
-  }
-
-  .highlight strong { color: var(--accent); }
-
-  /* WARNING BOX */
-  .warning {
-    background: rgba(224,58,58,0.08);
-    border: 1px solid rgba(224,58,58,0.2);
-    border-left: 3px solid var(--red);
-    border-radius: 0 6px 6px 0;
-    padding: 1rem 1.25rem;
-    margin: 1rem 0;
-  }
-
-  .warning p {
-    font-size: 0.875rem;
-    line-height: 1.7;
-    color: var(--text);
-  }
-
-  .warning strong { color: var(--red); }
-
-  /* WEEK GRID */
-  .week-grid {
-    display: grid;
-    grid-template-columns: 80px repeat(7, 1fr);
-    gap: 2px;
-    font-family: var(--mono);
-    font-size: 0.55rem;
-    overflow-x: auto;
-  }
-
-  .wg-header {
-    background: var(--surface2);
-    padding: 6px 4px;
-    text-align: center;
-    color: var(--accent);
-    letter-spacing: 0.1em;
-    border-radius: 4px 4px 0 0;
-  }
-
-  .wg-time {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    padding-right: 8px;
-    color: var(--text-dim);
-    font-size: 0.5rem;
-    letter-spacing: 0.05em;
-  }
-
-  .wg-cell {
-    min-height: 28px;
-    border-radius: 3px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 2px;
-    line-height: 1.2;
-    letter-spacing: 0.03em;
-  }
-
-  .cell-school { background: rgba(58,142,224,0.2); color: #7ab8f5; border: 1px solid rgba(58,142,224,0.25); }
-  .cell-gym { background: rgba(232,160,32,0.18); color: #e8a020; border: 1px solid rgba(232,160,32,0.3); }
-  .cell-volley { background: rgba(47,182,122,0.15); color: #4dd494; border: 1px solid rgba(47,182,122,0.25); }
-  .cell-deep { background: rgba(180,100,220,0.15); color: #c084e8; border: 1px solid rgba(180,100,220,0.25); }
-  .cell-biz { background: rgba(255,140,60,0.15); color: #ff9a50; border: 1px solid rgba(255,140,60,0.25); }
-  .cell-rest { background: rgba(100,120,140,0.1); color: #6b7f94; border: 1px solid rgba(100,120,140,0.15); }
-  .cell-gf { background: rgba(232,80,120,0.12); color: #e86090; border: 1px solid rgba(232,80,120,0.25); }
-  .cell-draw { background: rgba(120,180,255,0.12); color: #90c8ff; border: 1px solid rgba(120,180,255,0.25); }
-  .cell-empty { background: transparent; }
-
-  /* PILLAR GRID */
-  .pillars {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 1rem;
-    margin: 1.5rem 0;
-  }
-
-  .pillar {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 1.25rem;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .pillar::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: var(--pillar-color, var(--accent));
-  }
-
-  .pillar-rank {
-    font-family: var(--display);
-    font-size: 3rem;
-    color: var(--border);
-    line-height: 1;
-    margin-bottom: 0.5rem;
-  }
-
-  .pillar-name {
-    font-family: var(--mono);
-    font-size: 0.6rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--pillar-color, var(--accent));
-    margin-bottom: 0.5rem;
-  }
-
-  .pillar-desc {
-    font-size: 0.78rem;
-    color: var(--text-dim);
-    line-height: 1.5;
-  }
-
-  /* MACRO BLOCK */
-  .macro-row {
-    display: grid;
-    grid-template-columns: 120px 1fr auto;
-    gap: 0.75rem;
-    align-items: center;
-    padding: 0.6rem 0;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .macro-row:last-child { border-bottom: none; }
-
-  .macro-name {
-    font-size: 0.8rem;
-    font-weight: 500;
-    color: var(--text-bright);
-  }
-
-  .macro-bar-wrap {
-    background: var(--surface2);
-    height: 6px;
-    border-radius: 3px;
-    overflow: hidden;
-  }
-
-  .macro-bar {
-    height: 100%;
-    border-radius: 3px;
-    background: var(--bar-color, var(--accent));
-  }
-
-  .macro-val {
-    font-family: var(--mono);
-    font-size: 0.65rem;
-    color: var(--accent);
-    white-space: nowrap;
-  }
-
-  /* SPLIT TABLE */
-  .split-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.82rem;
-  }
-
-  .split-table th {
-    font-family: var(--mono);
-    font-size: 0.55rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--text-dim);
-    padding: 0.5rem 0.75rem;
-    text-align: left;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .split-table td {
-    padding: 0.75rem;
-    border-bottom: 1px solid var(--border);
-    vertical-align: top;
-    line-height: 1.5;
-    color: var(--text);
-  }
-
-  .split-table tr:last-child td { border-bottom: none; }
-
-  .split-table tr:hover td { background: var(--surface2); }
-
-  .split-table .day-col {
-    font-family: var(--mono);
-    font-size: 0.65rem;
-    color: var(--accent);
-    white-space: nowrap;
-    font-weight: 700;
-  }
-
-  /* PRIORITY LIST */
-  .priority-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 1rem;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .priority-item:last-child { border-bottom: none; }
-
-  .priority-num {
-    font-family: var(--display);
-    font-size: 2rem;
-    color: var(--accent);
-    line-height: 1;
-    min-width: 40px;
-  }
-
-  .priority-body {}
-
-  .priority-title {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--text-bright);
-    margin-bottom: 0.25rem;
-  }
-
-  .priority-desc {
-    font-size: 0.78rem;
-    color: var(--text-dim);
-    line-height: 1.5;
-  }
-
-  /* SCROLL FADE */
-  .scroll-hint {
-    font-family: var(--mono);
-    font-size: 0.55rem;
-    color: var(--text-dim);
-    text-align: right;
-    margin-bottom: 0.5rem;
-    letter-spacing: 0.1em;
-  }
-
-  /* DIVIDER */
-  .divider {
-    border: none;
-    border-top: 1px solid var(--border);
-    margin: 2rem 0;
-  }
-
-  /* TAG INLINE */
-  .tag {
-    display: inline-block;
-    font-family: var(--mono);
-    font-size: 0.55rem;
-    letter-spacing: 0.1em;
-    color: var(--text-dim);
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 3px;
-    padding: 2px 6px;
-    margin: 2px;
-    vertical-align: middle;
-  }
-
-  /* FEEDBACK LOOP */
-  .feedback-loop {
-    display: flex;
-    align-items: center;
-    gap: 0;
-    overflow-x: auto;
-    padding: 1.5rem 0;
-    scrollbar-width: none;
-  }
-
-  .feedback-loop::-webkit-scrollbar { display: none; }
-
-  .fl-node {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 0.75rem 1rem;
-    text-align: center;
-    flex-shrink: 0;
-    min-width: 120px;
-  }
-
-  .fl-node-title {
-    font-family: var(--mono);
-    font-size: 0.6rem;
-    color: var(--accent);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    margin-bottom: 0.25rem;
-  }
-
-  .fl-node-body {
-    font-size: 0.72rem;
-    color: var(--text-dim);
-    line-height: 1.4;
-  }
-
-  .fl-arrow {
-    font-size: 1rem;
-    color: var(--accent);
-    padding: 0 0.5rem;
-    flex-shrink: 0;
-  }
-
-  /* METRIC ROW */
-  .metrics {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 1rem;
-    margin: 1.5rem 0;
-  }
-
-  .metric {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 1rem;
-  }
-
-  .metric-val {
-    font-family: var(--display);
-    font-size: 2rem;
-    color: var(--accent);
-    line-height: 1;
-    margin-bottom: 0.25rem;
-  }
-
-  .metric-label {
-    font-family: var(--mono);
-    font-size: 0.55rem;
-    letter-spacing: 0.15em;
-    color: var(--text-dim);
-    text-transform: uppercase;
-  }
+:root {
+  --bg: #060709;
+  --s1: #0c0f14;
+  --s2: #111620;
+  --s3: #181f2c;
+  --border: #1c2636;
+  --border2: #243040;
+  --a: #f0a500;
+  --a2: #c07800;
+  --a-dim: rgba(240,165,0,0.1);
+  --a-glow: rgba(240,165,0,0.2);
+  --text: #c8d4e0;
+  --dim: #5a7080;
+  --bright: #e8f0f8;
+  --mono: 'JetBrains Mono', monospace;
+  --display: 'Syne', sans-serif;
+  --body: 'Outfit', sans-serif;
+
+  /* block colors */
+  --c-morning: #3a4a5a;
+  --c-meal: #8b5e3c;
+  --c-commute: #334055;
+  --c-school: #2a5080;
+  --c-gym: #a05020;
+  --c-volleyball: #2a7050;
+  --c-deep: #5a2a8a;
+  --c-light: #3a3a7a;
+  --c-reading: #1a6060;
+  --c-business: #7a4a20;
+  --c-recovery: #2a3a3a;
+  --c-sleep: #101820;
+  --c-drawing: #2a5070;
+  --c-gf: #7a2a4a;
+  --c-free: #2a2a40;
+  --c-trans: #222a36;
+}
+
+::-webkit-scrollbar {
+display: none;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--body);
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.5;
+}
+
+/* TOPBAR */
+.topbar {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(6,7,9,0.97);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: stretch;
+  height: 52px;
+}
+
+.logo {
+  font-family: var(--display);
+  font-size: 0.9rem; font-weight: 800;
+  letter-spacing: 0.15em;
+  color: var(--a);
+  padding: 0 1.5rem;
+  display: flex; align-items: center;
+  border-right: 1px solid var(--border);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.logo em {
+  font-style: normal; font-weight: 400;
+  color: var(--dim); font-size: 0.65rem;
+  font-family: var(--mono);
+  margin-left: 0.75rem; letter-spacing: 0.05em;
+}
+
+.nav { display: flex; overflow-x: auto; scrollbar-width: none; }
+.nav::-webkit-scrollbar { display: none; }
+
+.nb {
+  font-family: var(--mono); font-size: 0.58rem;
+  letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--dim); background: none; border: none;
+  padding: 0 1.25rem; cursor: pointer; white-space: nowrap;
+  border-right: 1px solid var(--border);
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s;
+}
+.nb:hover { color: var(--text); background: var(--s1); }
+.nb.on { color: var(--a); border-bottom-color: var(--a); background: var(--s1); }
+
+/* MAIN */
+.main { max-width: 980px; margin: 0 auto; padding: 2rem 1.5rem 5rem; }
+
+/* SECTIONS */
+.sec { display: none; }
+.sec.on { display: block; animation: fi 0.2s ease; }
+@keyframes fi { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+
+/* HEADER */
+.hdr { margin-bottom: 2rem; }
+.htag { font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.3em; color: var(--a); text-transform: uppercase; margin-bottom: 0.4rem; }
+.htitle { font-family: var(--display); font-size: clamp(1.8rem,4vw,3rem); font-weight: 800; color: var(--bright); line-height: 1.05; }
+.hsub { font-size: 0.85rem; color: var(--dim); margin-top: 0.5rem; max-width: 580px; font-weight: 300; }
+
+/* CARDS */
+.card { background: var(--s1); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; margin-bottom: 0.875rem; }
+.ctitle { font-family: var(--mono); font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--a); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+.ctitle::before { content:''; width:5px; height:5px; background:var(--a); flex-shrink:0; }
+
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.875rem; }
+.g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.875rem; }
+@media(max-width:600px) { .g2,.g3 { grid-template-columns:1fr; } }
+
+/* RULE ROWS */
+.rule { display: flex; gap: 0.75rem; padding: 0.6rem 0; border-bottom: 1px solid var(--border); align-items: flex-start; }
+.rule:last-child { border-bottom: none; }
+.rn { font-family: var(--mono); font-size: 0.55rem; color: var(--a); padding-top: 3px; flex-shrink:0; width:22px; }
+.rt { font-size: 0.82rem; line-height: 1.6; }
+.rt strong { color: var(--bright); }
+
+/* ALERTS */
+.warn { background: rgba(180,40,40,0.08); border: 1px solid rgba(180,40,40,0.2); border-left: 3px solid #c03030; border-radius: 0 5px 5px 0; padding: 1rem 1.25rem; margin: 0.875rem 0; }
+.warn p { font-size: 0.82rem; line-height: 1.7; }
+.warn strong { color: #e05050; }
+
+.info { background: var(--a-dim); border: 1px solid rgba(240,165,0,0.2); border-left: 3px solid var(--a); border-radius: 0 5px 5px 0; padding: 1rem 1.25rem; margin: 0.875rem 0; }
+.info p { font-size: 0.82rem; line-height: 1.7; }
+.info strong { color: var(--a); }
+
+.good { background: rgba(30,120,60,0.08); border: 1px solid rgba(30,120,60,0.2); border-left: 3px solid #2a8040; border-radius: 0 5px 5px 0; padding: 1rem 1.25rem; margin: 0.875rem 0; }
+.good p { font-size: 0.82rem; line-height: 1.7; }
+.good strong { color: #4ab060; }
+
+/* BADGES */
+.badge { display: inline-block; font-family: var(--mono); font-size: 0.5rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 2px 6px; border-radius: 2px; font-weight: 700; }
+.br { background: rgba(180,40,40,0.15); color: #e05050; border: 1px solid rgba(180,40,40,0.3); }
+.bg { background: rgba(30,120,60,0.15); color: #4ab060; border: 1px solid rgba(30,120,60,0.3); }
+.ba { background: var(--a-dim); color: var(--a); border: 1px solid rgba(240,165,0,0.3); }
+.bb { background: rgba(40,100,180,0.15); color: #5090e0; border: 1px solid rgba(40,100,180,0.3); }
+
+/* STATS ROW */
+.stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px,1fr)); gap: 0.75rem; margin: 1.25rem 0; }
+.stat { background: var(--s2); border: 1px solid var(--border); border-radius: 5px; padding: 0.875rem; }
+.sv { font-family: var(--display); font-size: 1.8rem; color: var(--a); line-height: 1; margin-bottom: 0.2rem; }
+.sl { font-family: var(--mono); font-size: 0.5rem; letter-spacing: 0.12em; color: var(--dim); text-transform: uppercase; }
+
+hr.div { border:none; border-top:1px solid var(--border); margin:1.5rem 0; }
+
+/* ═══════════════════════════════════════ */
+/* WEEKLY SCHEDULE                         */
+/* ═══════════════════════════════════════ */
+.day-nav { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 1.5rem; overflow-x: auto; scrollbar-width: none; }
+.day-nav::-webkit-scrollbar { display: none; }
+
+.dnb { font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); background: none; border: none; padding: 0.6rem 1rem; cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; transition: all 0.15s; }
+.dnb:hover { color: var(--text); }
+.dnb.on { color: var(--a); border-bottom-color: var(--a); }
+.dnb .dsub { font-size: 0.48rem; color: var(--dim); display: block; margin-top: 1px; letter-spacing: 0.08em; }
+.dnb.on .dsub { color: var(--a2); }
+
+.day-view { display: none; }
+.day-view.on { display: block; animation: fi 0.2s ease; }
+
+/* DAY HEADER */
+.day-hdr { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+.day-name { font-family: var(--display); font-size: 2rem; font-weight: 800; color: var(--bright); }
+.day-tags { display: flex; gap: 0.4rem; flex-wrap: wrap; align-items: center; }
+.day-alert { font-family: var(--mono); font-size: 0.55rem; color: var(--dim); margin-left: auto; letter-spacing: 0.1em; }
+
+/* TIMELINE */
+.timeline { display: flex; flex-direction: column; gap: 2px; }
+
+.blk {
+  display: grid;
+  grid-template-columns: 80px 4px 1fr;
+  gap: 0 10px;
+  align-items: start;
+  min-height: 36px;
+}
+
+.blk-time { font-family: var(--mono); font-size: 0.62rem; color: var(--dim); padding-top: 10px; text-align: right; letter-spacing: 0.05em; flex-shrink: 0; }
+.blk-bar { border-radius: 2px; align-self: stretch; min-height: 36px; position: relative; }
+.blk-bar::after { content:''; position:absolute; top:10px; left:-4px; width:9px; height:9px; border-radius: 50%; background:var(--bar-bg,#333); border:2px solid var(--bg); }
+.blk-content { padding: 8px 0 8px 0; }
+.blk-label { font-size: 0.82rem; font-weight: 500; color: var(--bright); margin-bottom: 0.2rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+.blk-dur { font-family: var(--mono); font-size: 0.5rem; color: var(--dim); letter-spacing: 0.05em; }
+.blk-note { font-size: 0.72rem; color: var(--dim); line-height: 1.5; }
+
+/* category colors */
+.cat-morning   { background:#3a4a5a; --bar-bg:#3a4a5a; }
+.cat-meal      { background:#8b5e3c; --bar-bg:#8b5e3c; }
+.cat-commute   { background:#334055; --bar-bg:#334055; }
+.cat-school    { background:#1e4a7a; --bar-bg:#1e4a7a; }
+.cat-gym       { background:#c06020; --bar-bg:#c06020; }
+.cat-volleyball { background:#1e6848; --bar-bg:#1e6848; }
+.cat-deep      { background:#6a2aa0; --bar-bg:#6a2aa0; }
+.cat-light     { background:#3a3a8a; --bar-bg:#3a3a8a; }
+.cat-reading   { background:#1a7070; --bar-bg:#1a7070; }
+.cat-business  { background:#904820; --bar-bg:#904820; }
+.cat-recovery  { background:#1e3030; --bar-bg:#1e3030; }
+.cat-sleep     { background:#0e1824; --bar-bg:#0e1824; }
+.cat-drawing   { background:#1a5878; --bar-bg:#1a5878; }
+.cat-gf        { background:#842048; --bar-bg:#842048; }
+.cat-free      { background:#1e2040; --bar-bg:#1e2040; }
+.cat-trans     { background:#1a2230; --bar-bg:#1a2230; }
+
+/* label colors matching bars */
+.lc-morning   { color: #7a9ab0; }
+.lc-meal      { color: #c09060; }
+.lc-commute   { color: #608090; }
+.lc-school    { color: #5090d0; }
+.lc-gym       { color: #e08040; }
+.lc-volleyball { color: #40c080; }
+.lc-deep      { color: #a060e0; }
+.lc-light     { color: #7070c0; }
+.lc-reading   { color: #40b0b0; }
+.lc-business  { color: #e07040; }
+.lc-recovery  { color: #5a7a7a; }
+.lc-sleep     { color: #4060a0; }
+.lc-drawing   { color: #50a0c0; }
+.lc-gf        { color: #d060a0; }
+.lc-free      { color: #6060a0; }
+.lc-trans     { color: #50687a; }
+
+/* day summary bar */
+.day-summary { background: var(--s2); border: 1px solid var(--border); border-radius: 5px; padding: 0.875rem 1rem; margin-bottom: 1.25rem; display: flex; gap: 1.5rem; flex-wrap: wrap; }
+.ds-item { display: flex; flex-direction: column; gap: 0.15rem; }
+.ds-val { font-family: var(--display); font-size: 1.2rem; color: var(--a); line-height:1; }
+.ds-lbl { font-family: var(--mono); font-size: 0.48rem; color: var(--dim); letter-spacing: 0.1em; text-transform: uppercase; }
+
+/* ═══ TRAINING TABLE ═══ */
+.train-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin-top: 0.5rem; }
+.train-table th { font-family: var(--mono); font-size: 0.52rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border); }
+.train-table td { padding: 0.75rem; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.5; }
+.train-table tr:last-child td { border-bottom: none; }
+.train-table tr:hover td { background: var(--s2); }
+.train-table .dc { font-family: var(--mono); font-size: 0.6rem; color: var(--a); }
+
+/* PRIORITY STACK */
+.pstack { }
+.pi { display: flex; gap: 1rem; padding: 0.8rem 0; border-bottom: 1px solid var(--border); }
+.pi:last-child { border-bottom: none; }
+.pn { font-family: var(--display); font-size: 2.2rem; color: var(--s3); line-height:1; min-width:45px; }
+.pt { font-size: 0.82rem; font-weight: 600; color: var(--bright); margin-bottom: 0.2rem; }
+.pd { font-size: 0.75rem; color: var(--dim); line-height: 1.5; }
+
+/* LEGEND */
+.legend { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.75rem 0 1.25rem; }
+.leg { display: flex; align-items: center; gap: 0.35rem; font-family: var(--mono); font-size: 0.5rem; color: var(--dim); letter-spacing: 0.05em; }
+.leg-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
 </style>
 </head>
 <body>
 
-<!-- TOP BAR -->
 <div class="topbar">
-  <div class="logo">
-    LIFESTYLE OS
-    <span>v1.0 — PERSONAL OPERATING SYSTEM</span>
-  </div>
-  <nav class="nav" id="nav">
-    <button class="nav-btn active" onclick="show('system')">01 / SYSTEM</button>
-    <button class="nav-btn" onclick="show('weekly')">02 / WEEKLY</button>
-    <button class="nav-btn" onclick="show('daily')">03 / DAILY</button>
-    <button class="nav-btn" onclick="show('training')">04 / TRAINING</button>
-    <button class="nav-btn" onclick="show('nutrition')">05 / NUTRITION</button>
-    <button class="nav-btn" onclick="show('energy')">06 / ENERGY</button>
-    <button class="nav-btn" onclick="show('business')">07 / BUSINESS</button>
-    <button class="nav-btn" onclick="show('relationship')">08 / RELATIONSHIP</button>
+  <div class="logo">LIFESTYLE OS <em>v2.0 // 15-MIN PRECISION</em></div>
+  <nav class="nav">
+    <button class="nb on" onclick="show('rules')">01 Rules</button>
+    <button class="nb" onclick="show('reality')">02 Reality Check</button>
+    <button class="nb" onclick="show('schedule')">03 Schedule</button>
+    <button class="nb" onclick="show('training')">04 Training</button>
+    <button class="nb" onclick="show('nutrition')">05 Nutrition</button>
+    <button class="nb" onclick="show('failure')">06 Failure Points</button>
   </nav>
 </div>
 
 <div class="main">
 
-  <!-- ═══════════════════════════════════════════════════════ -->
-  <!-- 01 — SYSTEM DESIGN -->
-  <!-- ═══════════════════════════════════════════════════════ -->
-  <section class="section active" id="system">
-    <div class="section-header">
-      <div class="section-tag">Module 01</div>
-      <div class="section-title">SYSTEM DESIGN</div>
-      <div class="section-subtitle">The architecture that governs everything else. Before schedules, before rules — define what you're optimizing for and what wins when reality disagrees with your plan.</div>
-    </div>
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- 01 — SYSTEM RULES                                             -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<section class="sec on" id="rules">
+  <div class="hdr">
+    <div class="htag">Module 01 / Foundation</div>
+    <div class="htitle">SYSTEM RULES</div>
+    <div class="hsub">The immutable laws of the OS. Before a single minute is scheduled, these constraints define what is even possible.</div>
+  </div>
 
+  <div class="warn">
+    <p><strong>BEFORE ANYTHING ELSE — A HARD TRUTH:</strong> You listed 10h focused study + 4-5h reading + 4× gym + 7h volleyball + 5h school per weekday. Before building anything, I ran the numbers. The math is tight. See Module 02 for the exact calculation and what actually survives the audit.</p>
+  </div>
+
+  <div class="card">
+    <div class="ctitle">Priority Hierarchy — Conflict Resolution Law</div>
+    <div class="pstack">
+      <div class="pi"><div class="pn">1</div><div><div class="pt">Sleep — 8h minimum, non-negotiable</div><div class="pd">Every other goal degrades without sleep. Testosterone synthesis, study retention, athletic recovery — all depend on this. If you must trade sleep for anything, you lose more than you gain. The only exception is Tuesday volleyball which forces a 23:00 sleep — acceptable once per week.</div></div></div>
+      <div class="pi"><div class="pn">2</div><div><div class="pt">Fixed commitments — school + volleyball coaching</div><div class="pd">You coach people on Wednesday. They depend on you. You cannot skip. School is your primary institutional obligation. These are locked before anything else is scheduled.</div></div></div>
+      <div class="pi"><div class="pn">3</div><div><div class="pt">Gym sessions — treat as unbreakable appointments</div><div class="pd">The testosterone and athletic performance goals only hold if training is consistent. A skipped gym session is not recovered later — it simply doesn't happen. However: gym can be shortened on low-energy days. It cannot be skipped.</div></div></div>
+      <div class="pi"><div class="pn">4</div><div><div class="pt">Deep study — scheduled, protected blocks only</div><div class="pd">Study happens in designated blocks, never "when I have time." The moment study becomes optional, it gets displaced. Each block has a pre-assigned subject. No block = no cognitive work that day.</div></div></div>
+      <div class="pi"><div class="pn">5</div><div><div class="pt">Reading + business + relationship</div><div class="pd">These are real priorities, but they fit into the remaining space after 1–4 are honored. Reading fills evenings and Saturday. Business gets Wednesday midday and Sunday. Relationship gets Saturday afternoon/evening.</div></div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ctitle">Energy Law — The Most Important Scheduling Rule</div>
+    <div class="rule"><div class="rn">E1</div><div class="rt"><strong>Cognitive peak = 07:00–12:00.</strong> Morning cortisol is highest in the first 2–4 hours after waking. This is when your brain is fastest and retention is highest. Deep study always goes here when possible. Thursday morning (07:45–09:15) is your single best cognitive window all week — it has no competition from school.</div></div>
+    <div class="rule"><div class="rn">E2</div><div class="rt"><strong>Post-school window (15:30–17:00) = moderate.</strong> Energy is down after 6–8h of school. One focused study block here is realistic. Two back-to-back blocks are not. Use this for active recall (lower cognitive overhead) rather than new material learning.</div></div>
+    <div class="rule"><div class="rn">E3</div><div class="rt"><strong>Post-gym/sport = no deep work.</strong> After gym, your CNS is taxed. After volleyball, your body is exhausted and cortisol is suppressed. Light review (Anki, re-reading notes) is acceptable. New material acquisition is a waste of time after intense physical output.</div></div>
+    <div class="rule"><div class="rn">E4</div><div class="rt"><strong>Post-Wednesday coaching = zero cognitive load.</strong> 5 hours of coaching + commuting = system depleted. Do not attempt any study or business on Wednesday evening. This is a recovery block. Force this rule even when you feel "fine."</div></div>
+    <div class="rule"><div class="rn">E5</div><div class="rt"><strong>Sunday morning = second best cognitive window.</strong> No school pressure, fresh from Saturday rest, gym not yet done. Sunday 07:45–09:15 is your second premium study block. Use it for the hardest subject of the week.</div></div>
+  </div>
+
+  <div class="g2">
     <div class="card">
-      <div class="card-title">Core Pillars — Priority Order</div>
-      <div class="pillars">
-        <div class="pillar" style="--pillar-color: #e03a3a;">
-          <div class="pillar-rank">1</div>
-          <div class="pillar-name">Sleep</div>
-          <div class="pillar-desc">The only lever that controls every other pillar. Non-negotiable. 7.5–8.5h. Everything depreciates without it.</div>
-        </div>
-        <div class="pillar" style="--pillar-color: #e8a020;">
-          <div class="pillar-rank">2</div>
-          <div class="pillar-name">Training</div>
-          <div class="pillar-desc">Drives testosterone, mental clarity, athletic performance, and stress management simultaneously.</div>
-        </div>
-        <div class="pillar" style="--pillar-color: #3a8ee0;">
-          <div class="pillar-rank">3</div>
-          <div class="pillar-name">Study</div>
-          <div class="pillar-desc">Academic performance. High ROI when done with method — active recall, spaced repetition, zero multitasking.</div>
-        </div>
-        <div class="pillar" style="--pillar-color: #ff8c3c;">
-          <div class="pillar-rank">4</div>
-          <div class="pillar-name">Business</div>
-          <div class="pillar-desc">Asymmetric upside. Must be treated as a professional commitment, not a hobby squeezed between tasks.</div>
-        </div>
-        <div class="pillar" style="--pillar-color: #e86090;">
-          <div class="pillar-rank">5</div>
-          <div class="pillar-name">Relationship</div>
-          <div class="pillar-desc">Presence over frequency. Scheduled, protected time beats random scraps of attention.</div>
-        </div>
-      </div>
+      <div class="ctitle">Non-Negotiables</div>
+      <div class="rule"><div class="rn">—</div><div class="rt">Asleep by <strong>23:00 latest</strong> (23:15 on Tue only)</div></div>
+      <div class="rule"><div class="rn">—</div><div class="rt"><strong>500ml water</strong> within 10 min of waking</div></div>
+      <div class="rule"><div class="rn">—</div><div class="rt"><strong>No phone</strong> first 30 min after wake</div></div>
+      <div class="rule"><div class="rn">—</div><div class="rt">Phone in <strong>another room</strong> during all study blocks</div></div>
+      <div class="rule"><div class="rn">—</div><div class="rt">Phone out of bedroom <strong>by 21:30</strong></div></div>
+      <div class="rule"><div class="rn">—</div><div class="rt">Gym sessions <strong>capped at 80 min</strong> — cortisol rises beyond this</div></div>
+      <div class="rule"><div class="rn">—</div><div class="rt"><strong>No caffeine after 13:00</strong> — ruins sleep architecture</div></div>
     </div>
-
-    <div class="warning">
-      <p><strong>CRITICAL ASSUMPTION TO CHALLENGE:</strong> You believe you're "time-constrained." You're not. You have roughly 4–6 hours of discretionary time per day. What you're constrained by is <strong>energy and attention</strong>. Most people waste these on low-ROI activities while believing they're busy. This OS is designed to protect energy and attention, not just fill time slots.</p>
-    </div>
-
     <div class="card">
-      <div class="card-title">Priority Hierarchy — Conflict Resolution Protocol</div>
-      <div class="priority-item">
-        <div class="priority-num">1</div>
-        <div class="priority-body">
-          <div class="priority-title">Sleep beats everything</div>
-          <div class="priority-desc">If you must choose between staying up to study and sleeping, <strong>sleep wins</strong>. Sleep-deprived studying yields near-zero retention. Sleep-deprived training increases injury risk and suppresses testosterone by 10–15%. There is no exception to this rule.</div>
-        </div>
-      </div>
-      <div class="priority-item">
-        <div class="priority-num">2</div>
-        <div class="priority-body">
-          <div class="priority-title">Volleyball commitments > gym sessions</div>
-          <div class="priority-desc">You coach. People depend on you. Miss a gym session, never miss volleyball. If fatigued before volleyball, make the gym session shorter or lighter — never skip volleyball.</div>
-        </div>
-      </div>
-      <div class="priority-item">
-        <div class="priority-num">3</div>
-        <div class="priority-body">
-          <div class="priority-title">Scheduled business blocks are non-negotiable</div>
-          <div class="priority-desc">Business only grows if treated like a job. If a block is scheduled, only a school exam or sports commitment overrides it — not mood, not social impulse, not "I'll do it later."</div>
-        </div>
-      </div>
-      <div class="priority-item">
-        <div class="priority-num">4</div>
-        <div class="priority-body">
-          <div class="priority-title">Girlfriend time is sacred once scheduled</div>
-          <div class="priority-desc">Half a weekend day, clearly defined in advance. When it's her time, it's her time — not "half her time while you check Slack." Full presence or it doesn't count.</div>
-        </div>
-      </div>
+      <div class="ctitle">Flexible Zones</div>
+      <div class="rule"><div class="rn">—</div><div class="rt">Which subject in each study block</div></div>
+      <div class="rule"><div class="rn">—</div><div class="rt">Specific exercises within training sessions</div></div>
+      <div class="rule"><div class="rn">—</div><div class="rt">Saturday match timing (approximate)</div></div>
+      <div class="rule"><div class="rn">—</div><div class="rt">Business block content week-to-week</div></div>
+      <div class="rule"><div class="rn">—</div><div class="rt">Reading material choice</div></div>
+      <div class="rule"><div class="rn">—</div><div class="rt">Friday evening activity (social / rest)</div></div>
+      <div class="rule"><div class="rn">—</div><div class="rt">Whether to nap on free afternoon windows</div></div>
     </div>
+  </div>
+</section>
 
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- 02 — REALITY CHECK                                            -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<section class="sec" id="reality">
+  <div class="hdr">
+    <div class="htag">Module 02 / Audit</div>
+    <div class="htitle">REALITY CHECK</div>
+    <div class="hsub">The math run before any schedule was built. No assumptions. No optimism. Just real numbers.</div>
+  </div>
+
+  <div class="card">
+    <div class="ctitle">Total Weekly Hours = 168h</div>
+    <div class="rule"><div class="rn">—</div><div class="rt"><strong>Sleep (8h × 7):</strong> 56h committed</div></div>
+    <div class="rule"><div class="rn">—</div><div class="rt"><strong>School (in-class time):</strong> Mon 6h55 + Tue 7h45 + Wed 3h35 + Thu 6h5 + Fri 6h55 = <strong>31h15</strong></div></div>
+    <div class="rule"><div class="rn">—</div><div class="rt"><strong>Commuting (school, 2×/day, 5 days):</strong> ~5h total</div></div>
+    <div class="rule"><div class="rn">—</div><div class="rt"><strong>Volleyball training + coaching:</strong> Tue 2h + Wed 5h = 7h</div></div>
+    <div class="rule"><div class="rn">—</div><div class="rt"><strong>Volleyball matches (2, incl. travel):</strong> ~5h</div></div>
+    <div class="rule"><div class="rn">—</div><div class="rt"><strong>Gym (4 sessions):</strong> 4 × 1.25h = 5h</div></div>
+    <div class="rule"><div class="rn">—</div><div class="rt"><strong>Drawing academy + commute:</strong> 4h</div></div>
+    <div class="rule"><div class="rn">—</div><div class="rt"><strong>Meals (3×/day):</strong> ~10.5h</div></div>
+    <div class="rule"><div class="rn">—</div><div class="rt"><strong>Morning routines (wake, shower, dress):</strong> ~5h</div></div>
+    <div class="rule"><div class="rn">—</div><div class="rt"><strong>Post-gym showers + transitions:</strong> ~2h</div></div>
+    <div class="rule"><div class="rn">—</div><div class="rt"><strong>Wind-down blocks:</strong> ~3.5h</div></div>
+  </div>
+
+  <div class="warn">
+    <p><strong>TOTAL FIXED COMMITMENTS: ~134h per week</strong><br><br>
+    That leaves <strong>~34 hours of genuinely discretionary time</strong>. Across 7 days, that's <strong>~4.8h per day on average</strong>. This is the entire budget for study, reading, business, relationship time, and any leisure. It is not nothing — but it is not as much as most people imagine.</p>
+  </div>
+
+  <div class="card">
+    <div class="ctitle">What's Actually Achievable — Brutally Honest</div>
+    <div class="stats">
+      <div class="stat"><div class="sv">7h</div><div class="sl">Deep Study</div></div>
+      <div class="stat"><div class="sv">1.5h</div><div class="sl">Light Study</div></div>
+      <div class="stat"><div class="sv">6.5h</div><div class="sl">Reading</div></div>
+      <div class="stat"><div class="sv">3h</div><div class="sl">Business</div></div>
+      <div class="stat"><div class="sv">6h</div><div class="sl">GF / Social</div></div>
+      <div class="stat"><div class="sv">4h</div><div class="sl">Free Buffer</div></div>
+    </div>
+  </div>
+
+  <div class="warn">
+    <p><strong>ON THE 10-HOUR STUDY TARGET:</strong><br><br>
+    You want 10h of <em>focused</em> study per week. Here is the problem: <strong>7–8h of active recall study is worth more than 12h of passive review.</strong> The 10h number is likely based on "time spent with books open" — not actual cognitive work. This OS gives you 7h of <em>real</em> deep study (active recall, problem-solving, Pomodoro 50/10) + 1.5h of lighter consolidation. That equals more academic output than 10h of re-reading notes.<br><br>
+    The honest ceiling with your sports load is <strong>8.5h of study-quality time</strong>. Trying to force 10h means compressing sleep, skipping recovery, or studying on days where you'll retain nothing (post-coaching, post-late volleyball). That is not more studying — it is the illusion of studying.</p>
+  </div>
+
+  <div class="good">
+    <p><strong>READING TARGET IS EXCEEDED:</strong> The schedule delivers <strong>6.5h of reading per week</strong> — above your 4–5h target. Saturday afternoon (90 min) and Sunday midday (90 min) are the two anchor reading blocks. Monday/Tuesday/Thursday/Friday evenings add consistent 45-min sessions. Reading fills post-gym and post-dinner windows well because it requires less active cognitive effort than deep study.</p>
+  </div>
+
+  <div class="card">
+    <div class="ctitle">The Hidden Gem You're Missing</div>
+    <div class="info">
+      <p><strong>Thursday morning is the single best study block of your week.</strong> School doesn't start until 09:55. Commute is 30 min. If you wake at 07:00 and eat by 07:45, you have <strong>90 uninterrupted minutes</strong> of morning peak-cortisol focus before school even begins. This window has zero competition — no sports, no school, no evening fatigue. This is where you put your hardest subject.</p>
+    </div>
+    <div class="info">
+      <p><strong>Wednesday midday (12:20–14:30) is your best business block.</strong> School ends at 11:50. Coaching starts at 15:00. You have a 2h10 window at home in the middle of the week — freshly after school, not post-gym, no evening fatigue. This is where business gets 90 minutes of uncompromised focus, not squeezed between fatigue and sleep.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- 03 — WEEKLY SCHEDULE                                          -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<section class="sec" id="schedule">
+  <div class="hdr">
+    <div class="htag">Module 03 / Execution</div>
+    <div class="htitle">WEEKLY SCHEDULE</div>
+    <div class="hsub">15-minute precision. Every block accounted for. Built around real fatigue, not aspirational energy.</div>
+  </div>
+
+  <div class="legend">
+    <div class="leg"><div class="leg-dot" style="background:#7a9ab0"></div>Morning</div>
+    <div class="leg"><div class="leg-dot" style="background:#c09060"></div>Meal</div>
+    <div class="leg"><div class="leg-dot" style="background:#608090"></div>Commute</div>
+    <div class="leg"><div class="leg-dot" style="background:#5090d0"></div>School</div>
+    <div class="leg"><div class="leg-dot" style="background:#e08040"></div>Gym</div>
+    <div class="leg"><div class="leg-dot" style="background:#40c080"></div>Volleyball</div>
+    <div class="leg"><div class="leg-dot" style="background:#a060e0"></div>Deep Study ★</div>
+    <div class="leg"><div class="leg-dot" style="background:#7070c0"></div>Light Study</div>
+    <div class="leg"><div class="leg-dot" style="background:#40b0b0"></div>Reading</div>
+    <div class="leg"><div class="leg-dot" style="background:#e07040"></div>Business</div>
+    <div class="leg"><div class="leg-dot" style="background:#d060a0"></div>Girlfriend</div>
+    <div class="leg"><div class="leg-dot" style="background:#50a0c0"></div>Drawing</div>
+    <div class="leg"><div class="leg-dot" style="background:#5a7a7a"></div>Recovery</div>
+    <div class="leg"><div class="leg-dot" style="background:#4060a0"></div>Sleep</div>
+  </div>
+
+  <div class="day-nav">
+    <button class="dnb on" onclick="showDay('mon')">Monday<span class="dsub">School + Gym</span></button>
+    <button class="dnb" onclick="showDay('tue')">Tuesday<span class="dsub">School + Volley</span></button>
+    <button class="dnb" onclick="showDay('wed')">Wednesday<span class="dsub">School + Coach</span></button>
+    <button class="dnb" onclick="showDay('thu')">Thursday<span class="dsub">★ Prime Day</span></button>
+    <button class="dnb" onclick="showDay('fri')">Friday<span class="dsub">School + Gym</span></button>
+    <button class="dnb" onclick="showDay('sat')">Saturday<span class="dsub">Drawing + Match</span></button>
+    <button class="dnb" onclick="showDay('sun')">Sunday<span class="dsub">★ Power Day</span></button>
+  </div>
+
+  <!-- MONDAY -->
+  <div class="day-view on" id="day-mon">
+    <div class="day-hdr">
+      <div class="day-name">MONDAY</div>
+      <div class="day-tags">
+        <span class="badge bb">School 08:15–15:10</span>
+        <span class="badge ba">Gym — Upper Pull</span>
+      </div>
+      <div class="day-alert">SLEEP TARGET → 22:30 | WAKE → 07:00 | SLEEP DURATION → 8.5h</div>
+    </div>
+    <div class="day-summary">
+      <div class="ds-item"><div class="ds-val">60'</div><div class="ds-lbl">Deep Study</div></div>
+      <div class="ds-item"><div class="ds-val">30'</div><div class="ds-lbl">Light Study</div></div>
+      <div class="ds-item"><div class="ds-val">45'</div><div class="ds-lbl">Reading</div></div>
+      <div class="ds-item"><div class="ds-val">75'</div><div class="ds-lbl">Gym</div></div>
+      <div class="ds-item"><div class="ds-val">10'</div><div class="ds-lbl">Business</div></div>
+      <div class="ds-item"><div class="ds-val">8.5h</div><div class="ds-lbl">Sleep</div></div>
+    </div>
+    <div class="timeline" id="tl-mon"></div>
+  </div>
+
+  <!-- TUESDAY -->
+  <div class="day-view" id="day-tue">
+    <div class="day-hdr">
+      <div class="day-name">TUESDAY</div>
+      <div class="day-tags">
+        <span class="badge bb">School 08:15–16:00</span>
+        <span class="badge bg">Volleyball 20:00–22:00</span>
+      </div>
+      <div class="day-alert">SLEEP TARGET → 23:00 | WAKE → 07:00 | SLEEP DURATION → 8h (tight)</div>
+    </div>
+    <div class="day-summary">
+      <div class="ds-item"><div class="ds-val">60'</div><div class="ds-lbl">Deep Study</div></div>
+      <div class="ds-item"><div class="ds-val">0'</div><div class="ds-lbl">Light Study</div></div>
+      <div class="ds-item"><div class="ds-val">45'</div><div class="ds-lbl">Reading</div></div>
+      <div class="ds-item"><div class="ds-val">120'</div><div class="ds-lbl">Volleyball</div></div>
+      <div class="ds-item"><div class="ds-val">8h</div><div class="ds-lbl">Sleep</div></div>
+    </div>
+    <div class="timeline" id="tl-tue"></div>
+  </div>
+
+  <!-- WEDNESDAY -->
+  <div class="day-view" id="day-wed">
+    <div class="day-hdr">
+      <div class="day-name">WEDNESDAY</div>
+      <div class="day-tags">
+        <span class="badge bb">School 08:15–11:50</span>
+        <span class="badge bg">Coaching 15:00–20:00</span>
+        <span class="badge ba">Business Block</span>
+      </div>
+      <div class="day-alert">SLEEP TARGET → 22:00 | WAKE → 07:00 | SLEEP DURATION → 9h — RECOVERY PRIORITY</div>
+    </div>
+    <div class="day-summary">
+      <div class="ds-item"><div class="ds-val">0'</div><div class="ds-lbl">Deep Study</div></div>
+      <div class="ds-item"><div class="ds-val">0'</div><div class="ds-lbl">Light Study</div></div>
+      <div class="ds-item"><div class="ds-val">30'</div><div class="ds-lbl">Reading</div></div>
+      <div class="ds-item"><div class="ds-val">90'</div><div class="ds-lbl">Business ★</div></div>
+      <div class="ds-item"><div class="ds-val">300'</div><div class="ds-lbl">Coaching</div></div>
+      <div class="ds-item"><div class="ds-val">9h</div><div class="ds-lbl">Sleep</div></div>
+    </div>
+    <div class="timeline" id="tl-wed"></div>
+  </div>
+
+  <!-- THURSDAY -->
+  <div class="day-view" id="day-thu">
+    <div class="day-hdr">
+      <div class="day-name">THURSDAY</div>
+      <div class="day-tags">
+        <span class="badge bb">School 09:55–16:00</span>
+        <span class="badge ba">Gym — Upper Push</span>
+        <span class="badge" style="background:rgba(160,60,220,0.15);color:#c060f0;border:1px solid rgba(160,60,220,0.3);">★ PRIME MORNING WINDOW</span>
+      </div>
+      <div class="day-alert">SLEEP TARGET → 22:30 | WAKE → 07:00 | SLEEP DURATION → 8.5h</div>
+    </div>
+    <div class="day-summary">
+      <div class="ds-item"><div class="ds-val">90'</div><div class="ds-lbl">Deep Study ★</div></div>
+      <div class="ds-item"><div class="ds-val">30'</div><div class="ds-lbl">Light Study</div></div>
+      <div class="ds-item"><div class="ds-val">45'</div><div class="ds-lbl">Reading</div></div>
+      <div class="ds-item"><div class="ds-val">75'</div><div class="ds-lbl">Gym</div></div>
+      <div class="ds-item"><div class="ds-val">30'</div><div class="ds-lbl">Business</div></div>
+      <div class="ds-item"><div class="ds-val">8.5h</div><div class="ds-lbl">Sleep</div></div>
+    </div>
+    <div class="timeline" id="tl-thu"></div>
+  </div>
+
+  <!-- FRIDAY -->
+  <div class="day-view" id="day-fri">
+    <div class="day-hdr">
+      <div class="day-name">FRIDAY</div>
+      <div class="day-tags">
+        <span class="badge bb">School 08:15–15:10</span>
+        <span class="badge ba">Gym — Lower Athletic</span>
+      </div>
+      <div class="day-alert">SLEEP TARGET → 23:00 | WAKE → 07:00 | SLEEP DURATION → 8h</div>
+    </div>
+    <div class="day-summary">
+      <div class="ds-item"><div class="ds-val">0'</div><div class="ds-lbl">Deep Study</div></div>
+      <div class="ds-item"><div class="ds-val">30'</div><div class="ds-lbl">Light Study</div></div>
+      <div class="ds-item"><div class="ds-val">60'</div><div class="ds-lbl">Reading</div></div>
+      <div class="ds-item"><div class="ds-val">75'</div><div class="ds-lbl">Gym</div></div>
+      <div class="ds-item"><div class="ds-val">10'</div><div class="ds-lbl">Business</div></div>
+      <div class="ds-item"><div class="ds-val">8h</div><div class="ds-lbl">Sleep</div></div>
+    </div>
+    <div class="timeline" id="tl-fri"></div>
+  </div>
+
+  <!-- SATURDAY -->
+  <div class="day-view" id="day-sat">
+    <div class="day-hdr">
+      <div class="day-name">SATURDAY</div>
+      <div class="day-tags">
+        <span class="badge" style="background:rgba(26,88,120,0.2);color:#50a0c0;border:1px solid rgba(26,88,120,0.3);">Drawing 09:00–12:30</span>
+        <span class="badge bg">Match ~14:30–17:00</span>
+        <span class="badge" style="background:rgba(132,32,72,0.15);color:#d060a0;border:1px solid rgba(132,32,72,0.3);">Girlfriend Eve</span>
+      </div>
+      <div class="day-alert">SLEEP TARGET → 23:00 | WAKE → 07:00 | SLEEP DURATION → 8h</div>
+    </div>
+    <div class="day-summary">
+      <div class="ds-item"><div class="ds-val">0'</div><div class="ds-lbl">Study</div></div>
+      <div class="ds-item"><div class="ds-val">90'</div><div class="ds-lbl">Reading ★</div></div>
+      <div class="ds-item"><div class="ds-val">210'</div><div class="ds-lbl">Drawing</div></div>
+      <div class="ds-item"><div class="ds-val">~150'</div><div class="ds-lbl">Match</div></div>
+      <div class="ds-item"><div class="ds-val">~180'</div><div class="ds-lbl">GF Time</div></div>
+      <div class="ds-item"><div class="ds-val">8h</div><div class="ds-lbl">Sleep</div></div>
+    </div>
+    <div class="timeline" id="tl-sat"></div>
+  </div>
+
+  <!-- SUNDAY -->
+  <div class="day-view" id="day-sun">
+    <div class="day-hdr">
+      <div class="day-name">SUNDAY</div>
+      <div class="day-tags">
+        <span class="badge" style="background:rgba(160,60,220,0.15);color:#c060f0;border:1px solid rgba(160,60,220,0.3);">★ BEST STUDY WINDOW</span>
+        <span class="badge ba">Gym — Lower Heavy</span>
+        <span class="badge bg">Match Afternoon</span>
+      </div>
+      <div class="day-alert">SLEEP TARGET → 22:00 | WAKE → 07:00 | SLEEP DURATION → 9h — PREP FOR WEEK</div>
+    </div>
+    <div class="day-summary">
+      <div class="ds-item"><div class="ds-val">90'</div><div class="ds-lbl">Deep Study ★</div></div>
+      <div class="ds-item"><div class="ds-val">45'</div><div class="ds-lbl">Light Study</div></div>
+      <div class="ds-item"><div class="ds-val">90'</div><div class="ds-lbl">Reading ★</div></div>
+      <div class="ds-item"><div class="ds-val">85'</div><div class="ds-lbl">Gym</div></div>
+      <div class="ds-item"><div class="ds-val">60'</div><div class="ds-lbl">Business</div></div>
+      <div class="ds-item"><div class="ds-val">9h</div><div class="ds-lbl">Sleep</div></div>
+    </div>
+    <div class="timeline" id="tl-sun"></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- 04 — TRAINING                                                  -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<section class="sec" id="training">
+  <div class="hdr">
+    <div class="htag">Module 04 / Performance</div>
+    <div class="htitle">TRAINING SYSTEM</div>
+    <div class="hsub">Your current Core/Pull/Core/Push split is broken. Here is a direct diagnosis and a replacement that accounts for volleyball load.</div>
+  </div>
+
+  <div class="warn">
+    <p><strong>WHAT'S WRONG WITH YOUR CURRENT SPLIT:</strong><br><br>
+    <strong>1. No legs.</strong> Squats and deadlifts are the highest testosterone-stimulating movements that exist. Skipping them entirely while prioritizing "core days" is the most counterproductive choice you can make if hormonal optimization is a goal.<br><br>
+    <strong>2. Two core days.</strong> The core is trained as a stabilizer in every compound movement. Isolated core sessions have near-zero testosterone signal and waste recovery capacity that could be used for legs or pressing volume.<br><br>
+    <strong>3. It doesn't account for volleyball.</strong> Wednesday is 5h of coaching — explosive jumping, lateral movement, repeated acceleration. That is a de facto lower-body training day. Thursday gym (the day after) must be upper body only, not legs.</p>
+  </div>
+
+  <div class="card">
+    <div class="ctitle">Optimized 4-Day Split</div>
+    <table class="train-table">
+      <thead>
+        <tr>
+          <th>Day</th><th>Session</th><th>Primary Movements</th><th>Volleyball Consideration</th><th>Duration</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="dc">MONDAY</td>
+          <td><span class="badge" style="background:rgba(100,40,160,0.2);color:#a060d0;border:1px solid rgba(100,40,160,0.3);">Upper Pull</span></td>
+          <td>Weighted Pull-Ups (primary, 5×4–6), Barbell Row, Cable Row, Face Pulls 3×15, Bicep Curl. Core: Dead Bug 3×10.</td>
+          <td>Sunday was Lower Heavy → legs need rest. Upper Pull is ideal recovery management.</td>
+          <td>70 min</td>
+        </tr>
+        <tr>
+          <td class="dc">THURSDAY</td>
+          <td><span class="badge ba">Upper Push</span></td>
+          <td>Bench Press OR OHP (alternate weeks), Incline DB Press, Lateral Raises 4×15, Tricep Dips/Pushdowns, Face Pulls 2×15.</td>
+          <td>Day after 5h coaching. NO LEG WORK. Upper push only. Keep intensity controlled — no PR attempts on Thursdays.</td>
+          <td>70 min</td>
+        </tr>
+        <tr>
+          <td class="dc">FRIDAY</td>
+          <td><span class="badge bg">Lower Athletic</span></td>
+          <td>Deadlift 4×4 (or Trap Bar), Goblet Squat 3×10, Hip Thrust 3×12, Jump Squat 3×8, Single-Leg Work. Bridges strength + volleyball explosiveness.</td>
+          <td>2 days post-coaching. Legs partially recovered. This session emphasizes explosiveness, not maximal loading. Moderate intensity.</td>
+          <td>70 min</td>
+        </tr>
+        <tr>
+          <td class="dc">SUNDAY</td>
+          <td><span class="badge" style="background:rgba(180,50,50,0.15);color:#d06060;border:1px solid rgba(180,50,50,0.3);">Lower Heavy ★</span></td>
+          <td>Back Squat 5×3–5 (heaviest session), Romanian Deadlift 3×8, Bulgarian Split Squat 3×8, Leg Curl, Calf Raises. Core finisher: Hanging Leg Raise 3×12.</td>
+          <td>Best recovery state of the week. Saturday = full rest (no gym, no coaching). Sunday = freshest for maximum loading. This is your testosterone-primary session.</td>
+          <td>85 min</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="g2">
     <div class="card">
-      <div class="card-title">Non-Negotiables vs Flexible Blocks</div>
-      <div class="grid-2">
-        <div>
-          <div style="font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.15em; color: var(--red); margin-bottom: 0.75rem;">NON-NEGOTIABLES</div>
-          <div class="rule">
-            <div class="rule-num">—</div>
-            <div class="rule-text">Asleep by <strong>22:30 max</strong> (except Tuesday volleyball nights)</div>
-          </div>
-          <div class="rule">
-            <div class="rule-num">—</div>
-            <div class="rule-text">Wake by <strong>7:00</strong> every day, no exceptions</div>
-          </div>
-          <div class="rule">
-            <div class="rule-num">—</div>
-            <div class="rule-text"><strong>4× gym</strong> sessions per week minimum</div>
-          </div>
-          <div class="rule">
-            <div class="rule-num">—</div>
-            <div class="rule-text">All volleyball sessions <strong>attended and coached</strong></div>
-          </div>
-          <div class="rule">
-            <div class="rule-num">—</div>
-            <div class="rule-text"><strong>Protein target</strong> hit at every meal you control</div>
-          </div>
-          <div class="rule">
-            <div class="rule-num">—</div>
-            <div class="rule-text"><strong>2× weekly business blocks</strong> executed</div>
-          </div>
-          <div class="rule">
-            <div class="rule-num">—</div>
-            <div class="rule-text">Phone off during study and gym</div>
-          </div>
-        </div>
-        <div>
-          <div style="font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.15em; color: var(--green); margin-bottom: 0.75rem;">FLEXIBLE BLOCKS</div>
-          <div class="rule">
-            <div class="rule-num">—</div>
-            <div class="rule-text">Exact study topics (rotate based on urgency)</div>
-          </div>
-          <div class="rule">
-            <div class="rule-num">—</div>
-            <div class="rule-text">Specific exercises within each training session</div>
-          </div>
-          <div class="rule">
-            <div class="rule-num">—</div>
-            <div class="rule-text">Girlfriend activity choice each weekend</div>
-          </div>
-          <div class="rule">
-            <div class="rule-num">—</div>
-            <div class="rule-text">Which websites to build / clients to target</div>
-          </div>
-          <div class="rule">
-            <div class="rule-num">—</div>
-            <div class="rule-text">Rest or nap during open afternoon windows</div>
-          </div>
-          <div class="rule">
-            <div class="rule-num">—</div>
-            <div class="rule-text">Social time, spontaneous activities</div>
-          </div>
-          <div class="rule">
-            <div class="rule-num">—</div>
-            <div class="rule-text">Drawing academy attendance variation</div>
-          </div>
-        </div>
-      </div>
+      <div class="ctitle">Training Rules</div>
+      <div class="rule"><div class="rn">01</div><div class="rt"><strong>Compounds first, always.</strong> Squat, deadlift, bench, row, OHP. These are done at the start of every session before any accessory work.</div></div>
+      <div class="rule"><div class="rn">02</div><div class="rt"><strong>Rep ranges:</strong> 3–5 reps for heavy compounds, 8–12 for accessories. Heavy loading drives the hormonal response.</div></div>
+      <div class="rule"><div class="rn">03</div><div class="rt"><strong>Rest periods:</strong> 2–3 min on compounds, 60–90s on accessories. Rushing rest on compound lifts tanks the quality of subsequent sets.</div></div>
+      <div class="rule"><div class="rn">04</div><div class="rt"><strong>Sessions cap at 80 min.</strong> Beyond this, cortisol rises and testosterone drops. Efficiency beats duration.</div></div>
+      <div class="rule"><div class="rn">05</div><div class="rt"><strong>Face Pulls every session.</strong> Volleyball is an overhead sport. Posterior shoulder health requires 3×15 face pulls every single training day. Non-negotiable injury prevention.</div></div>
     </div>
-
     <div class="card">
-      <div class="card-title">The Feedback Loop — How This System Sustains Itself</div>
-      <div class="feedback-loop">
-        <div class="fl-node">
-          <div class="fl-node-title">Deep Sleep</div>
-          <div class="fl-node-body">7.5–8.5h → peak testosterone, hormonal reset</div>
-        </div>
-        <div class="fl-arrow">→</div>
-        <div class="fl-node">
-          <div class="fl-node-title">Quality Training</div>
-          <div class="fl-node-body">Compound lifts, adequate volume → testosterone signal</div>
-        </div>
-        <div class="fl-arrow">→</div>
-        <div class="fl-node">
-          <div class="fl-node-title">Mental Sharpness</div>
-          <div class="fl-node-body">Focus, study retention, creative output</div>
-        </div>
-        <div class="fl-arrow">→</div>
-        <div class="fl-node">
-          <div class="fl-node-title">Business Progress</div>
-          <div class="fl-node-body">Real output, confidence, income signal</div>
-        </div>
-        <div class="fl-arrow">→</div>
-        <div class="fl-node">
-          <div class="fl-node-title">Reduced Stress</div>
-          <div class="fl-node-body">Lower cortisol → better sleep quality</div>
-        </div>
-        <div class="fl-arrow">↩</div>
+      <div class="ctitle">Deload Protocol</div>
+      <div class="rule"><div class="rn">—</div><div class="rt"><strong>Every 4–6 weeks:</strong> Reduce volume by 40%. Keep the same weights, cut sets by 40%. Do not skip deloads.</div></div>
+      <div class="rule"><div class="rn">—</div><div class="rt"><strong>Volleyball weeks with matches:</strong> Treat heavy match weekends as a soft deload for gym. Drop Sunday's Lower Heavy to Lower Moderate.</div></div>
+      <div class="rule"><div class="rn">—</div><div class="rt"><strong>Sick or genuinely exhausted:</strong> Skip gym, never skip sleep. One missed gym session costs nothing. Pushing through illness costs a week of training.</div></div>
+      <div class="rule"><div class="rn">—</div><div class="rt"><strong>Progress tracking:</strong> Log main lifts every session. You cannot optimize what you don't measure.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- 05 — NUTRITION                                                 -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<section class="sec" id="nutrition">
+  <div class="hdr">
+    <div class="htag">Module 05 / Fuel</div>
+    <div class="htitle">NUTRITION SYSTEM</div>
+    <div class="hsub">No supplements. No complicated tracking. Simple, repeatable rules that work in a student's real life and directly support testosterone and performance.</div>
+  </div>
+
+  <div class="warn">
+    <p><strong>THE SINGLE BIGGEST TESTOSTERONE NUTRITION ERROR:</strong> Eating low fat. Testosterone is synthesized from cholesterol. A diet that avoids dietary fat directly suppresses testosterone production. If you've been eating "healthy" by avoiding eggs, meat fat, nuts, or whole dairy — this single correction will have a measurable hormonal effect within 4–6 weeks.</p>
+  </div>
+
+  <div class="card">
+    <div class="ctitle">Breakfast — Controlled, Optimized</div>
+    <div class="info">
+      <p>Current: oatmeal + milk. Assessment: good carb base, critically inadequate in protein and fat. Incomplete for testosterone support.</p>
+    </div>
+    <div class="rule"><div class="rn">①</div><div class="rt"><strong>Keep the oats.</strong> 60–80g oats + milk or water. Slow-release carbs, no change needed.</div></div>
+    <div class="rule"><div class="rn">②</div><div class="rt"><strong>Add 3 whole eggs.</strong> Non-negotiable upgrade. Eggs contain cholesterol (testosterone precursor), zinc, vitamin D, and complete protein. Scramble them while oats cook — 5 minutes total prep.</div></div>
+    <div class="rule"><div class="rn">③</div><div class="rt"><strong>Add 30g mixed nuts.</strong> Almonds, walnuts, Brazil nuts (selenium — testosterone cofactor). Grab a handful. 10 seconds of effort.</div></div>
+    <div class="rule"><div class="rn">④</div><div class="rt"><strong>Optional: 1 banana.</strong> B6 supports testosterone synthesis. Easy to eat on commute.</div></div>
+    <div class="rule"><div class="rn">⑤</div><div class="rt"><strong>Overnight prep on school days.</strong> Prep oats the night before (overnight oats). Hard-boil eggs in batches Sunday evening. Breakfast becomes 5-minute assembly, not cooking.</div></div>
+    <div class="rule"><div class="rn">⑥</div><div class="rt"><strong>Result:</strong> ~40g protein, ~65g carbs, ~22g fat. Satiating until lunch, no energy crash, hormonal profile aligned.</div></div>
+  </div>
+
+  <div class="card">
+    <div class="ctitle">Lunch — Structure Over Recipes</div>
+    <div class="g2">
+      <div>
+        <div style="font-family:var(--mono);font-size:0.55rem;letter-spacing:0.15em;color:var(--a);margin-bottom:0.75rem;">THE TEMPLATE (every lunch)</div>
+        <div class="rule"><div class="rn">1/3</div><div class="rt"><strong>Protein source:</strong> 35–40g minimum. Chicken, beef, canned fish, eggs, legumes.</div></div>
+        <div class="rule"><div class="rn">1/3</div><div class="rt"><strong>Complex carb:</strong> Rice, potato, sweet potato, pasta. Don't skip on training days — fuel matters.</div></div>
+        <div class="rule"><div class="rn">1/3</div><div class="rt"><strong>Vegetables:</strong> Spinach, broccoli, tomatoes. Broccoli supports testosterone metabolism. Spinach improves athletic blood flow.</div></div>
       </div>
-      <div style="font-family: var(--mono); font-size: 0.6rem; color: var(--text-dim); letter-spacing: 0.08em; margin-top: 0.5rem;">Break any node and the loop degrades. Sleep is the master node — protect it above all.</div>
+      <div>
+        <div style="font-family:var(--mono);font-size:0.55rem;letter-spacing:0.15em;color:var(--a);margin-bottom:0.75rem;">FAST OPTIONS (10 min max prep)</div>
+        <div class="rule"><div class="rn">A</div><div class="rt">Rice + ground beef + frozen vegetables. Batch cook Sunday.</div></div>
+        <div class="rule"><div class="rn">B</div><div class="rt">Potatoes + 4–5 eggs + spinach. Cheap, fast, high testosterone profile.</div></div>
+        <div class="rule"><div class="rn">C</div><div class="rt">Pasta + canned tuna + olive oil + tomatoes. 10 minutes, excellent fat profile.</div></div>
+        <div class="rule"><div class="rn">D</div><div class="rt">Whole grain bread + eggs + avocado + any vegetable. Zero cooking.</div></div>
+      </div>
     </div>
-  </section>
+  </div>
 
-  <!-- ═══════════════════════════════════════════════════════ -->
-  <!-- 02 — WEEKLY ARCHITECTURE -->
-  <!-- ═══════════════════════════════════════════════════════ -->
-  <section class="section" id="weekly">
-    <div class="section-header">
-      <div class="section-tag">Module 02</div>
-      <div class="section-title">WEEKLY ARCHITECTURE</div>
-      <div class="section-subtitle">Not a timetable. A system of energy zones, recovery windows, and leverage points designed around your fixed constraints.</div>
+  <div class="card">
+    <div class="ctitle">Pre/Post Training Snacks</div>
+    <div class="g2">
+      <div>
+        <div style="font-family:var(--mono);font-size:0.55rem;color:var(--a);letter-spacing:0.15em;margin-bottom:0.75rem;">PRE-GYM (30–45 min before)</div>
+        <div class="rule"><div class="rn">—</div><div class="rt">Banana + 20g peanut butter. Simple carb + small fat. No heavy meals.</div></div>
+        <div class="rule"><div class="rn">—</div><div class="rt">Or: Greek yogurt + honey. Fast protein + carbs.</div></div>
+      </div>
+      <div>
+        <div style="font-family:var(--mono);font-size:0.55rem;color:var(--a);letter-spacing:0.15em;margin-bottom:0.75rem;">POST-VOLLEYBALL (late nights)</div>
+        <div class="rule"><div class="rn">—</div><div class="rt">Glass of milk + banana. No heavy meals post-22:00 — impairs sleep quality.</div></div>
+        <div class="rule"><div class="rn">—</div><div class="rt">Or: small portion of whatever dinner was, kept aside.</div></div>
+      </div>
     </div>
+  </div>
 
+  <div class="g2">
     <div class="card">
-      <div class="card-title">Weekly Energy Map</div>
-      <div class="scroll-hint">← scroll if needed</div>
-      <div class="week-grid">
-        <!-- Headers -->
-        <div class="wg-header" style="background:transparent;"></div>
-        <div class="wg-header">MON</div>
-        <div class="wg-header">TUE</div>
-        <div class="wg-header">WED</div>
-        <div class="wg-header">THU</div>
-        <div class="wg-header">FRI</div>
-        <div class="wg-header">SAT</div>
-        <div class="wg-header">SUN</div>
-
-        <!-- 06:00 -->
-        <div class="wg-time">06:00</div>
-        <div class="wg-cell cell-rest">Sleep</div>
-        <div class="wg-cell cell-rest">Sleep</div>
-        <div class="wg-cell cell-rest">Sleep</div>
-        <div class="wg-cell cell-rest">Sleep</div>
-        <div class="wg-cell cell-rest">Sleep</div>
-        <div class="wg-cell cell-rest">Sleep</div>
-        <div class="wg-cell cell-rest">Sleep</div>
-
-        <!-- 07:00 -->
-        <div class="wg-time">07:00</div>
-        <div class="wg-cell cell-rest">Wake / Protocol</div>
-        <div class="wg-cell cell-rest">Wake / Protocol</div>
-        <div class="wg-cell cell-rest">Wake / Protocol</div>
-        <div class="wg-cell cell-rest">Wake / Protocol</div>
-        <div class="wg-cell cell-rest">Wake / Protocol</div>
-        <div class="wg-cell cell-rest">Wake / Protocol</div>
-        <div class="wg-cell cell-rest">Wake / Protocol</div>
-
-        <!-- 08:00 -->
-        <div class="wg-time">08:00</div>
-        <div class="wg-cell cell-school">School</div>
-        <div class="wg-cell cell-school">School</div>
-        <div class="wg-cell cell-school">School</div>
-        <div class="wg-cell cell-rest">Transit</div>
-        <div class="wg-cell cell-school">School</div>
-        <div class="wg-cell cell-draw">Drawing Academy</div>
-        <div class="wg-cell cell-gym">LOWER BODY (Heavy)</div>
-
-        <!-- 09:00 -->
-        <div class="wg-time">09:00</div>
-        <div class="wg-cell cell-school">School</div>
-        <div class="wg-cell cell-school">School</div>
-        <div class="wg-cell cell-school">School</div>
-        <div class="wg-cell cell-school">School</div>
-        <div class="wg-cell cell-school">School</div>
-        <div class="wg-cell cell-draw">Drawing Academy</div>
-        <div class="wg-cell cell-gym">LOWER BODY (Heavy)</div>
-
-        <!-- 10:00 -->
-        <div class="wg-time">10:00</div>
-        <div class="wg-cell cell-school">School</div>
-        <div class="wg-cell cell-school">School</div>
-        <div class="wg-cell cell-school">School</div>
-        <div class="wg-cell cell-school">School</div>
-        <div class="wg-cell cell-school">School</div>
-        <div class="wg-cell cell-draw">Drawing Academy</div>
-        <div class="wg-cell cell-gym">LOWER BODY (Heavy)</div>
-
-        <!-- 11:00 -->
-        <div class="wg-time">11:00</div>
-        <div class="wg-cell cell-school">School</div>
-        <div class="wg-cell cell-school">School</div>
-        <div class="wg-cell cell-school">School</div>
-        <div class="wg-cell cell-school">School</div>
-        <div class="wg-cell cell-school">School</div>
-        <div class="wg-cell cell-draw">Drawing Academy</div>
-        <div class="wg-cell cell-rest">Rest / Meal</div>
-
-        <!-- 12:00 -->
-        <div class="wg-time">12:00</div>
-        <div class="wg-cell cell-school">School</div>
-        <div class="wg-cell cell-school">School</div>
-        <div class="wg-cell cell-biz">BUSINESS BLOCK #1</div>
-        <div class="wg-cell cell-school">School</div>
-        <div class="wg-cell cell-school">School</div>
-        <div class="wg-cell cell-rest">Transition</div>
-        <div class="wg-cell cell-deep">DEEP STUDY</div>
-
-        <!-- 13:00 -->
-        <div class="wg-time">13:00</div>
-        <div class="wg-cell cell-school">School</div>
-        <div class="wg-cell cell-school">School</div>
-        <div class="wg-cell cell-biz">BUSINESS BLOCK #1</div>
-        <div class="wg-cell cell-school">School</div>
-        <div class="wg-cell cell-school">School</div>
-        <div class="wg-cell cell-gf">GIRLFRIEND TIME</div>
-        <div class="wg-cell cell-deep">DEEP STUDY</div>
-
-        <!-- 14:00 -->
-        <div class="wg-time">14:00</div>
-        <div class="wg-cell cell-school">School</div>
-        <div class="wg-cell cell-school">School</div>
-        <div class="wg-cell cell-rest">Prep / Transit</div>
-        <div class="wg-cell cell-school">School</div>
-        <div class="wg-cell cell-school">School</div>
-        <div class="wg-cell cell-gf">GIRLFRIEND TIME</div>
-        <div class="wg-cell cell-deep">DEEP STUDY</div>
-
-        <!-- 15:00 -->
-        <div class="wg-time">15:00</div>
-        <div class="wg-cell cell-rest">Transit</div>
-        <div class="wg-cell cell-school">School</div>
-        <div class="wg-cell cell-volley">VOLLEYBALL (Coach)</div>
-        <div class="wg-cell cell-rest">Transit</div>
-        <div class="wg-cell cell-rest">Transit</div>
-        <div class="wg-cell cell-gf">GIRLFRIEND TIME</div>
-        <div class="wg-cell cell-rest">Rest / Nap</div>
-
-        <!-- 16:00 -->
-        <div class="wg-time">16:00</div>
-        <div class="wg-cell cell-deep">DEEP STUDY</div>
-        <div class="wg-cell cell-rest">Transit</div>
-        <div class="wg-cell cell-volley">VOLLEYBALL (Coach)</div>
-        <div class="wg-cell cell-gym">PUSH DAY</div>
-        <div class="wg-cell cell-gym">PULL DAY</div>
-        <div class="wg-cell cell-gf">GIRLFRIEND TIME</div>
-        <div class="wg-cell cell-rest">Free / Recovery</div>
-
-        <!-- 17:00 -->
-        <div class="wg-time">17:00</div>
-        <div class="wg-cell cell-gym">GYM (Upper Pull)</div>
-        <div class="wg-cell cell-deep">DEEP STUDY</div>
-        <div class="wg-cell cell-volley">VOLLEYBALL (Coach)</div>
-        <div class="wg-cell cell-gym">PUSH DAY</div>
-        <div class="wg-cell cell-gym">PULL DAY</div>
-        <div class="wg-cell cell-gf">GIRLFRIEND TIME</div>
-        <div class="wg-cell cell-biz">BUSINESS BLOCK #2</div>
-
-        <!-- 18:00 -->
-        <div class="wg-time">18:00</div>
-        <div class="wg-cell cell-gym">GYM (Upper Pull)</div>
-        <div class="wg-cell cell-deep">DEEP STUDY</div>
-        <div class="wg-cell cell-volley">VOLLEYBALL (Coach)</div>
-        <div class="wg-cell cell-rest">Meal / Recover</div>
-        <div class="wg-cell cell-rest">Meal / Recover</div>
-        <div class="wg-cell cell-rest">Dinner / Wind-down</div>
-        <div class="wg-cell cell-biz">BUSINESS BLOCK #2</div>
-
-        <!-- 19:00 -->
-        <div class="wg-time">19:00</div>
-        <div class="wg-cell cell-rest">Meal / Recover</div>
-        <div class="wg-cell cell-rest">Prep for Volley</div>
-        <div class="wg-cell cell-volley">VOLLEYBALL (Coach)</div>
-        <div class="wg-cell cell-deep">LIGHT STUDY</div>
-        <div class="wg-cell cell-deep">LIGHT STUDY</div>
-        <div class="wg-cell cell-rest">Wind-down</div>
-        <div class="wg-cell cell-rest">Wind-down</div>
-
-        <!-- 20:00 -->
-        <div class="wg-time">20:00</div>
-        <div class="wg-cell cell-rest">Wind-down</div>
-        <div class="wg-cell cell-volley">VOLLEYBALL (Train)</div>
-        <div class="wg-cell cell-volley">VOLLEYBALL (Train)</div>
-        <div class="wg-cell cell-rest">Wind-down</div>
-        <div class="wg-cell cell-rest">Wind-down</div>
-        <div class="wg-cell cell-rest">Wind-down</div>
-        <div class="wg-cell cell-rest">Wind-down</div>
-
-        <!-- 21:00 -->
-        <div class="wg-time">21:00</div>
-        <div class="wg-cell cell-rest">Sleep Prep →22:30</div>
-        <div class="wg-cell cell-volley">VOLLEYBALL (Train)</div>
-        <div class="wg-cell cell-rest">Sleep Prep</div>
-        <div class="wg-cell cell-rest">Sleep Prep →22:30</div>
-        <div class="wg-cell cell-rest">Sleep Prep →22:30</div>
-        <div class="wg-cell cell-rest">Sleep Prep →23:00</div>
-        <div class="wg-cell cell-rest">Sleep Prep →22:30</div>
-
-        <!-- 22:00 -->
-        <div class="wg-time">22:00</div>
-        <div class="wg-cell cell-rest">SLEEP</div>
-        <div class="wg-cell cell-volley">VOLLEYBALL +transit</div>
-        <div class="wg-cell cell-rest">SLEEP</div>
-        <div class="wg-cell cell-rest">SLEEP</div>
-        <div class="wg-cell cell-rest">SLEEP</div>
-        <div class="wg-cell cell-rest">SLEEP / Social</div>
-        <div class="wg-cell cell-rest">SLEEP</div>
-      </div>
+      <div class="ctitle">Always</div>
+      <div class="rule"><div class="rn">✓</div><div class="rt">Protein at every meal you control (35g+)</div></div>
+      <div class="rule"><div class="rn">✓</div><div class="rt">Whole eggs daily — no egg whites only</div></div>
+      <div class="rule"><div class="rn">✓</div><div class="rt">Dietary fat at each controlled meal</div></div>
+      <div class="rule"><div class="rn">✓</div><div class="rt">2.5–3L water daily</div></div>
+      <div class="rule"><div class="rn">✓</div><div class="rt">Eat enough on training days — do not undereat</div></div>
     </div>
-
-    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0;">
-      <span class="badge badge-blue">School</span>
-      <span class="badge badge-amber">Gym</span>
-      <span class="badge badge-green">Volleyball</span>
-      <span style="background:rgba(180,100,220,0.15);color:#c084e8;border:1px solid rgba(180,100,220,0.25);" class="badge">Deep Study</span>
-      <span style="background:rgba(255,140,60,0.15);color:#ff9a50;border:1px solid rgba(255,140,60,0.25);" class="badge">Business</span>
-      <span style="background:rgba(232,80,120,0.12);color:#e86090;border:1px solid rgba(232,80,120,0.25);" class="badge">Girlfriend</span>
-      <span style="background:rgba(120,180,255,0.12);color:#90c8ff;border:1px solid rgba(120,180,255,0.25);" class="badge">Drawing</span>
-    </div>
-
     <div class="card">
-      <div class="card-title">Energy Zone Logic</div>
-      <div class="rule">
-        <div class="rule-num">01</div>
-        <div class="rule-text"><strong>High cognitive load → mornings.</strong> Study and business go into your peak cortisol window (07:30–12:00). On school days, your best window is the 1–2h after school before gym.</div>
-      </div>
-      <div class="rule">
-        <div class="rule-num">02</div>
-        <div class="rule-text"><strong>Wednesday is a leverage day.</strong> School ends at 11:50. You have a 2.5h window (12:00–14:30) before volleyball prep. This is your best weekly business block — protect it like money.</div>
-      </div>
-      <div class="rule">
-        <div class="rule-num">03</div>
-        <div class="rule-text"><strong>Tuesday evening volleyball = recovery priority.</strong> No gym Tuesday. After 22:00, commute home, eat, decompress. Do not attempt study. You'll retain nothing and shortchange recovery.</div>
-      </div>
-      <div class="rule">
-        <div class="rule-num">04</div>
-        <div class="rule-text"><strong>Sunday is your deep architecture day.</strong> No school, no volleyball. This is for your heaviest gym session, your deepest study, and your second business block. Guard it jealously.</div>
-      </div>
-      <div class="rule">
-        <div class="rule-num">05</div>
-        <div class="rule-text"><strong>Thursday is your hardest day.</strong> School ends at 16:00, then gym (Push Day). Energy will be lower. Keep gym session focused and time-bounded. No 2h gym sessions on Thursdays.</div>
-      </div>
+      <div class="ctitle">Avoid</div>
+      <div class="rule"><div class="rn">✕</div><div class="rt"><strong>Alcohol</strong> — suppresses testosterone 24–48h measurably</div></div>
+      <div class="rule"><div class="rn">✕</div><div class="rt"><strong>Caffeine after 13:00</strong> — degrades sleep architecture even if you fall asleep fine</div></div>
+      <div class="rule"><div class="rn">✕</div><div class="rt"><strong>Heavy dinner less than 2h before sleep</strong></div></div>
+      <div class="rule"><div class="rn">✕</div><div class="rt"><strong>Skipping breakfast</strong> — fasting 16h+ chronically raises cortisol</div></div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- ═══════════════════════════════════════════════════════ -->
-  <!-- 03 — DAILY OPERATING RULES -->
-  <!-- ═══════════════════════════════════════════════════════ -->
-  <section class="section" id="daily">
-    <div class="section-header">
-      <div class="section-tag">Module 03</div>
-      <div class="section-title">DAILY RULES</div>
-      <div class="section-subtitle">The protocols that run every day. Consistency at this level compounds faster than any single hack or optimization.</div>
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- 06 — FAILURE POINTS                                           -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<section class="sec" id="failure">
+  <div class="hdr">
+    <div class="htag">Module 06 / Risk Analysis</div>
+    <div class="htitle">FAILURE POINTS</div>
+    <div class="hsub">Where this plan breaks. Predicted in advance. With fixes pre-built in.</div>
+  </div>
+
+  <div class="card">
+    <div class="ctitle">Failure Point 01 — Tuesday Sleep Deficit</div>
+    <div class="warn"><p><strong>THE RISK:</strong> Volleyball ends at 22:00. Commute home = 22:30. Wind-down is minimal. Sleep at 23:00–23:15. Wake at 07:00 = 7h45 of sleep. Do this repeatedly and testosterone drops, cognitive performance falls, athletic recovery degrades over the week.</p></div>
+    <div class="rule"><div class="rn">FIX</div><div class="rt"><strong>Wednesday sleep extends to 9h to compensate.</strong> Sleep at 22:00 on Wednesday. This is already built into the schedule. Tuesday's deficit must be paid back Wednesday — not accumulated. Do not let Wednesday slip past 22:15 bedtime under any circumstances.</div></div>
+  </div>
+
+  <div class="card">
+    <div class="ctitle">Failure Point 02 — Wednesday Evening Study Creep</div>
+    <div class="warn"><p><strong>THE RISK:</strong> You come home after 5h of coaching, feeling like you "wasted" the evening. You open your notes. You read for 90 minutes. You retain nothing. You sleep at midnight. You wake up already behind.</p></div>
+    <div class="rule"><div class="rn">FIX</div><div class="rt"><strong>Hard rule: zero cognitive work Wednesday after 20:30.</strong> 30 min of light reading (fiction or non-study material) maximum. The business block (12:20–14:00) is the only productive output on Wednesdays. Accept this. The system is designed around it.</div></div>
+  </div>
+
+  <div class="card">
+    <div class="ctitle">Failure Point 03 — Thursday Morning Alarm Resistance</div>
+    <div class="warn"><p><strong>THE RISK:</strong> Thursday has no school until 09:55. The alarm sounds at 07:00. Your brain says "I can sleep until 09:00." You do. You lose your best study block of the week. Repeatedly. The entire Thursday architecture collapses.</p></div>
+    <div class="rule"><div class="rn">FIX</div><div class="rt"><strong>Same alarm, every day, including Thursday.</strong> Consistent circadian rhythm is itself a testosterone optimizer. The variable of "what time do I wake up today" is a small friction that erodes discipline across all 7 days. One alarm time: 07:00. The 90 minutes before school on Thursday is the payoff for not sleeping in.</div></div>
+  </div>
+
+  <div class="card">
+    <div class="ctitle">Failure Point 04 — Study Without Method</div>
+    <div class="warn"><p><strong>THE RISK:</strong> You sit at your desk for 60 minutes. You re-read your notes. You highlight. You feel productive. You retain ~20% of what you reviewed. This is the most common form of academic self-deception. You are experiencing familiarity, not learning.</p></div>
+    <div class="rule"><div class="rn">FIX</div><div class="rt"><strong>Every deep study block begins with a closed-book brain dump.</strong> Write everything you know about today's topic before opening any material. The gap between what you wrote and what's in the notes = the actual learning to do. Active recall produces 3–4× the retention of passive review in the same time. The 7h of this schedule executed with active recall beats 12h of re-reading.</div></div>
+  </div>
+
+  <div class="card">
+    <div class="ctitle">Failure Point 05 — Business Block Fragmentation</div>
+    <div class="warn"><p><strong>THE RISK:</strong> Wednesday 13:00–14:30 becomes "catch up on emails, scroll for inspiration, tweak the portfolio, do a bit of everything." Nothing ships. No client contacted. No page built. 90 minutes evaporates with the feeling of being busy.</p></div>
+    <div class="rule"><div class="rn">FIX</div><div class="rt"><strong>Define the single output before the block begins.</strong> Written on paper before you open the computer: "Build the hero section for [client] site" or "Send outreach emails to 10 local restaurants." One output. If it's done early, start the next one on a pre-defined list. Never begin a business block without knowing exactly what it produces.</div></div>
+  </div>
+
+  <div class="card">
+    <div class="ctitle">Failure Point 06 — Overtraining Accumulation</div>
+    <div class="warn"><p><strong>THE RISK:</strong> By week 4–6 without a deload, performance plateaus, mood drops, morning motivation disappears, sleep quality degrades despite adequate duration, and you start blaming "motivation" when the real issue is accumulated systemic fatigue.</p></div>
+    <div class="rule"><div class="rn">FIX</div><div class="rt"><strong>Schedule the deload before you need it.</strong> Put it in the calendar: every 5th week, gym volume drops 40%. Same sessions, same days, fewer sets. Volleyball continues normally. This is the most counterintuitive high-performance principle: the scheduled rest week is where the adaptation from the previous 4 weeks actually consolidates. Your next training block will start stronger because of it.</div></div>
+  </div>
+
+  <div class="card">
+    <div class="ctitle">Failure Point 07 — Weekend Match Schedule Collision</div>
+    <div class="warn"><p><strong>THE RISK:</strong> Match timing is unpredictable. A Saturday 10:00 match wipes out the reading block and compresses everything. A Sunday 10:00 match eliminates the morning study block — your second best cognitive window of the week.</p></div>
+    <div class="rule"><div class="rn">FIX</div><div class="rt"><strong>Sunday match = Sunday study moves to pre-gym (06:45–08:00 compressed).</strong> Saturday match = reading moves to Sunday. The blocks are not deleted — they are shuffled. The non-negotiable is that the blocks happen somewhere in the weekend, not that they happen at the exact time shown.</div></div>
+  </div>
+
+  <hr class="div">
+
+  <div class="card">
+    <div class="ctitle">The One Metric That Tells You If The System Is Working</div>
+    <div class="info">
+      <p>Ignore weekly output totals. Ignore how many Pomodoros you did. Ignore whether you hit the exact schedule. Ask one question every Sunday evening: <strong>"Did I protect my sleep every night this week?"</strong><br><br>
+      If yes: the rest of the system is functioning. Training quality holds. Study retention holds. Hormonal state holds. Business output holds.<br><br>
+      If no: nothing else in the schedule matters until sleep is fixed first. This is not a motivational frame. It is the central feedback loop of the entire OS.</p>
     </div>
+  </div>
+</section>
 
-    <div class="card">
-      <div class="card-title">Wake & Sleep Protocol</div>
-      <div class="timeline">
-        <div class="tl-item">
-          <div class="tl-time">06:45</div>
-          <div class="tl-bar"></div>
-          <div class="tl-content">
-            <div class="tl-label">Alarm — No Snooze, Ever</div>
-            <div class="tl-note">One alarm. Snoozing fragments sleep cycles and spikes cortisol chaotically. Set it. Get up. The discipline is the point.</div>
-          </div>
-        </div>
-        <div class="tl-item">
-          <div class="tl-time">06:45</div>
-          <div class="tl-bar"></div>
-          <div class="tl-content">
-            <div class="tl-label">Hydration First</div>
-            <div class="tl-note">400–500ml water immediately. You lose ~1L overnight. Cognitive performance degrades with even mild dehydration.</div>
-          </div>
-        </div>
-        <div class="tl-item">
-          <div class="tl-time">06:50</div>
-          <div class="tl-bar"></div>
-          <div class="tl-content">
-            <div class="tl-label">Light Exposure</div>
-            <div class="tl-note">Open curtains or go outside immediately. Morning sunlight into your eyes (no sunglasses) anchors your circadian rhythm and peaks morning cortisol — which is how you feel alert and focused. This is the highest ROI habit in this document.</div>
-          </div>
-        </div>
-        <div class="tl-item">
-          <div class="tl-time">07:00</div>
-          <div class="tl-bar"></div>
-          <div class="tl-content">
-            <div class="tl-label">Breakfast — Protein First</div>
-            <div class="tl-note">High protein, moderate carbs. See Nutrition module. No phone during breakfast — eat, think, plan your day mentally for 10 minutes.</div>
-          </div>
-        </div>
-        <div class="tl-item">
-          <div class="tl-time">07:20</div>
-          <div class="tl-bar"></div>
-          <div class="tl-content">
-            <div class="tl-label">Commute / Brief Review</div>
-            <div class="tl-note">During commute: either mental review of what you need to accomplish today, OR passive audio (podcast, audio lecture). Not social media. Not passive scrolling. Your commute is 30 min of daily prime time — use it.</div>
-          </div>
-        </div>
-        <div class="tl-item">
-          <div class="tl-time">21:30</div>
-          <div class="tl-bar"></div>
-          <div class="tl-content">
-            <div class="tl-label">Evening Wind-Down Starts</div>
-            <div class="tl-note">Screen brightness drops. Blue light filter on. No new stimulating content (arguments, intense videos, stressful planning). This is your transition window.</div>
-          </div>
-        </div>
-        <div class="tl-item">
-          <div class="tl-time">22:00</div>
-          <div class="tl-bar"></div>
-          <div class="tl-content">
-            <div class="tl-label">Phone Out of Bedroom</div>
-            <div class="tl-note">Non-negotiable. Buy a cheap alarm clock if needed. The phone being present in the bedroom is a proven sleep disruptor — even if you don't use it, knowing it's there increases arousal.</div>
-          </div>
-        </div>
-        <div class="tl-item">
-          <div class="tl-time">22:30</div>
-          <div class="tl-bar"></div>
-          <div class="tl-content">
-            <div class="tl-label">Lights Out</div>
-            <div class="tl-note">Target. Tuesday is an exception (volleyball ends at 22:00 + 30min transit = 22:30 home → sleep by 23:15). On Tuesday nights, sleep takes priority over any "review" or business impulse.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Study Method — How, Not Just When</div>
-      <div class="highlight">
-        <p><strong>The fundamental error:</strong> Most students study by re-reading notes. This is the lowest-ROI study method that exists. It produces familiarity, not memory. You need to study in a way that creates retrieval practice — which means <strong>testing yourself</strong>, not reviewing material.</p>
-      </div>
-      <div class="rule">
-        <div class="rule-num">01</div>
-        <div class="rule-text"><strong>Active Recall over Passive Review.</strong> Close your notes. Write out everything you know about a topic from memory. Then check. The gap between what you wrote and the source is where learning happens.</div>
-      </div>
-      <div class="rule">
-        <div class="rule-num">02</div>
-        <div class="rule-text"><strong>Pomodoro 50/10.</strong> 50 minutes of single-subject focus, 10-minute break. After 3 cycles, take a 30-minute break. Study one thing per cycle — no switching subjects mid-session.</div>
-      </div>
-      <div class="rule">
-        <div class="rule-num">03</div>
-        <div class="rule-text"><strong>Phone in another room during study.</strong> Not on silent. Not face-down. In another room. Presence of a phone on your desk reduces cognitive capacity by ~20% even when not used (research-proven).</div>
-      </div>
-      <div class="rule">
-        <div class="rule-num">04</div>
-        <div class="rule-text"><strong>Spaced repetition for memorization.</strong> For content that must be memorized (definitions, formulas, vocabulary), use Anki or a similar app. 15 minutes daily beats 2 hours of cramming before an exam.</div>
-      </div>
-      <div class="rule">
-        <div class="rule-num">05</div>
-        <div class="rule-text"><strong>End each session with a 3-minute brain dump.</strong> Write out the 3 most important concepts you just studied without looking. This cements long-term memory more effectively than any review.</div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Phone & Distraction Rules</div>
-      <div class="grid-2">
-        <div>
-          <div style="font-family: var(--mono); font-size: 0.6rem; color: var(--red); letter-spacing: 0.15em; margin-bottom: 0.75rem;">KILL ZONES — Phone off/away</div>
-          <div class="rule"><div class="rule-num">✕</div><div class="rule-text">During gym sessions</div></div>
-          <div class="rule"><div class="rule-num">✕</div><div class="rule-text">During Pomodoro study blocks</div></div>
-          <div class="rule"><div class="rule-num">✕</div><div class="rule-text">During business deep work</div></div>
-          <div class="rule"><div class="rule-num">✕</div><div class="rule-text">During first 30 min after waking</div></div>
-          <div class="rule"><div class="rule-num">✕</div><div class="rule-text">In the bedroom after 22:00</div></div>
-          <div class="rule"><div class="rule-num">✕</div><div class="rule-text">During girlfriend scheduled time</div></div>
-        </div>
-        <div>
-          <div style="font-family: var(--mono); font-size: 0.6rem; color: var(--green); letter-spacing: 0.15em; margin-bottom: 0.75rem;">OPEN ZONES — Phone allowed</div>
-          <div class="rule"><div class="rule-num">✓</div><div class="rule-text">During meals (briefly, not habitually)</div></div>
-          <div class="rule"><div class="rule-num">✓</div><div class="rule-text">During commute (intentional use)</div></div>
-          <div class="rule"><div class="rule-num">✓</div><div class="rule-text">During scheduled social time</div></div>
-          <div class="rule"><div class="rule-num">✓</div><div class="rule-text">During 10-min Pomodoro breaks</div></div>
-          <div class="rule"><div class="rule-num">✓</div><div class="rule-text">Wind-down window (non-stimulating)</div></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══════════════════════════════════════════════════════ -->
-  <!-- 04 — TRAINING OPTIMIZATION -->
-  <!-- ═══════════════════════════════════════════════════════ -->
-  <section class="section" id="training">
-    <div class="section-header">
-      <div class="section-tag">Module 04</div>
-      <div class="section-title">TRAINING SYSTEM</div>
-      <div class="section-subtitle">Your current split is broken. Here's a direct assessment and a better system built around hormonal output, athletic performance, and your actual schedule.</div>
-    </div>
-
-    <div class="warning">
-      <p><strong>PROBLEM WITH YOUR CURRENT SPLIT (Core / Pull / Core / Push):</strong><br><br>
-      1. <strong>No leg work.</strong> Squats and deadlifts are the highest testosterone-stimulating exercises in existence. Skipping legs for "core" days is the single biggest training mistake you can make if testosterone is a priority.<br><br>
-      2. <strong>Two core days is overkill.</strong> The core is trained as a stabilizer in every compound movement. Dedicated core sessions are largely redundant and waste recovery capacity.<br><br>
-      3. <strong>One push day is insufficient</strong> for a volleyball athlete who needs explosive shoulder and chest strength. You need more pressing volume.<br><br>
-      4. <strong>The split doesn't account for volleyball load.</strong> Wednesday (5h coaching+training) and Tuesday (2h training) are high-fatigue days. The sessions after these need to be structured accordingly.</p>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Optimized Training Split</div>
-      <table class="split-table">
-        <thead>
-          <tr>
-            <th>Day</th>
-            <th>Session Type</th>
-            <th>Focus & Key Movements</th>
-            <th>Intensity</th>
-            <th>Duration</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td class="day-col">SUNDAY</td>
-            <td><span class="badge badge-amber">LOWER — Heavy</span></td>
-            <td>Back Squat (5×4 heavy), Romanian Deadlift, Bulgarian Split Squat, Leg Curl, Calf Raise. Core finisher: Hanging Leg Raises 3×12.</td>
-            <td>High — your best day, freshest state</td>
-            <td>75–80 min</td>
-          </tr>
-          <tr>
-            <td class="day-col">MONDAY</td>
-            <td><span class="badge badge-amber">UPPER PULL</span></td>
-            <td>Weighted Pull-Ups or Barbell Row (primary), Cable Row, Face Pull (shoulder health), Bicep Curls. Core: Plank variations 2 sets.</td>
-            <td>Moderate–High</td>
-            <td>60–70 min</td>
-          </tr>
-          <tr>
-            <td class="day-col">TUESDAY</td>
-            <td><span class="badge badge-green">VOLLEYBALL</span></td>
-            <td>No gym. Volleyball training 20:00–22:00. After session: eat, decompress, sleep. Zero gym.</td>
-            <td>—</td>
-            <td>—</td>
-          </tr>
-          <tr>
-            <td class="day-col">WEDNESDAY</td>
-            <td><span class="badge badge-green">VOLLEYBALL (Heavy)</span></td>
-            <td>No gym. 5h coaching + training. This is your highest volume athletic day. Treat it as a full training day.</td>
-            <td>—</td>
-            <td>—</td>
-          </tr>
-          <tr>
-            <td class="day-col">THURSDAY</td>
-            <td><span class="badge badge-amber">UPPER PUSH</span></td>
-            <td>Bench Press or Overhead Press (primary — alternate weekly), Dumbbell Incline, Lateral Raises, Tricep Dips or Pushdowns. Keep it sharp — you're post-school and Wednesday-fatigued.</td>
-            <td>Moderate — no heroics today</td>
-            <td>55–65 min</td>
-          </tr>
-          <tr>
-            <td class="day-col">FRIDAY</td>
-            <td><span class="badge badge-amber">LOWER — Athletic</span></td>
-            <td>Deadlift (Conventional or Trap Bar, 4×4), Goblet Squat 3×10, Jump Squats 3×8, Hip Thrust 3×12, Single-Leg Work. This session bridges strength and volleyball explosiveness.</td>
-            <td>Moderate–High</td>
-            <td>65–70 min</td>
-          </tr>
-          <tr>
-            <td class="day-col">SATURDAY</td>
-            <td><span class="badge badge-blue">Drawing Academy</span></td>
-            <td>No gym. Drawing 09:00–12:30. Rest, girlfriend time, or creative recovery. This is your intentional physical rest day.</td>
-            <td>—</td>
-            <td>—</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Testosterone Optimization Rules for Training</div>
-      <div class="rule">
-        <div class="rule-num">01</div>
-        <div class="rule-text"><strong>Compound lifts first, always.</strong> Squat, Deadlift, Bench, Row, Overhead Press. These are the movements that trigger the largest hormonal response. Do them at the start of every session, never as accessories.</div>
-      </div>
-      <div class="rule">
-        <div class="rule-num">02</div>
-        <div class="rule-text"><strong>Rep ranges 3–6 for heavy compounds, 8–12 for accessories.</strong> Heavy compound loading (85%+ 1RM) produces the highest acute testosterone spike. Don't do 15-rep sets on squats and expect a hormonal response.</div>
-      </div>
-      <div class="rule">
-        <div class="rule-num">03</div>
-        <div class="rule-text"><strong>60–90 second rest on accessories, 2–3 min on compounds.</strong> Insufficient rest → cortisol spike → testosterone suppression. Rest properly on heavy sets.</div>
-      </div>
-      <div class="rule">
-        <div class="rule-num">04</div>
-        <div class="rule-text"><strong>Sessions cap at 75–80 minutes maximum.</strong> Beyond 75–90 min, cortisol rises sharply and testosterone falls. Longer gym sessions are not better — they're often worse. Get in, execute, get out.</div>
-      </div>
-      <div class="rule">
-        <div class="rule-num">05</div>
-        <div class="rule-text"><strong>Monthly deload: reduce volume 40% for one week.</strong> Every 4–6 weeks. Do not skip this. Chronic training without recovery accumulates hidden fatigue that tanks performance and hormones simultaneously.</div>
-      </div>
-      <div class="rule">
-        <div class="rule-num">06</div>
-        <div class="rule-text"><strong>Face pulls every pull session — no exceptions.</strong> Volleyball is an overhead sport. Heavy pressing without posterior shoulder work = impingement within 18 months. 3×15 Face Pulls. Always.</div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Volleyball Load Integration — Overtraining Prevention</div>
-      <div class="highlight">
-        <p>Wednesday is a <strong>5-hour volleyball block</strong>. This must be treated as a full training session for recovery purposes. The mistake most student-athletes make is thinking "I only did volleyball, not the gym" — your body does not distinguish. 5 hours of court sport is demanding. Thursday gym should never be maximal effort — it should be a controlled push session with abbreviated rest times and no intensity PR attempts.</p>
-      </div>
-      <div class="metrics">
-        <div class="metric">
-          <div class="metric-val">4</div>
-          <div class="metric-label">Gym Sessions / Week</div>
-        </div>
-        <div class="metric">
-          <div class="metric-val">7h</div>
-          <div class="metric-label">Volleyball / Week</div>
-        </div>
-        <div class="metric">
-          <div class="metric-val">75</div>
-          <div class="metric-label">Max Gym Min</div>
-        </div>
-        <div class="metric">
-          <div class="metric-val">1×</div>
-          <div class="metric-label">Deload Per Month</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══════════════════════════════════════════════════════ -->
-  <!-- 05 — NUTRITION -->
-  <!-- ═══════════════════════════════════════════════════════ -->
-  <section class="section" id="nutrition">
-    <div class="section-header">
-      <div class="section-tag">Module 05</div>
-      <div class="section-title">NUTRITION SYSTEM</div>
-      <div class="section-subtitle">Not a diet plan. A set of rules for meals you control, optimized for testosterone, performance, and simplicity. No calorie counting. No meal prep obsession.</div>
-    </div>
-
-    <div class="warning">
-      <p><strong>THE BIGGEST NUTRITION MISTAKE FOR TESTOSTERONE:</strong> Eating too little fat. The most pervasive "healthy eating" myth is that fat is bad. Testosterone is synthesized from cholesterol. A low-fat diet directly suppresses testosterone production. Your diet must include adequate dietary fat daily — from eggs, meat, nuts, olive oil, and dairy. If you've been eating low-fat, this one change will have a measurable impact.</p>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Breakfast Upgrade — Controlled Meal #1</div>
-      <div class="highlight">
-        <p>Your current breakfast: <strong>oatmeal + milk.</strong> Assessment: good carb base, but critically low in protein and fat. Testosterone production requires both. This meal is incomplete.</p>
-      </div>
-      <div style="font-family: var(--mono); font-size: 0.6rem; color: var(--accent); letter-spacing: 0.15em; margin: 1rem 0 0.5rem;">UPGRADED BREAKFAST TEMPLATE</div>
-      <div class="rule">
-        <div class="rule-num">①</div>
-        <div class="rule-text"><strong>Keep the oats.</strong> 60–80g oats + milk or water. Slow carbs for sustained energy. No change needed here.</div>
-      </div>
-      <div class="rule">
-        <div class="rule-num">②</div>
-        <div class="rule-text"><strong>Add 3 whole eggs.</strong> Scrambled, poached, or fried. Eggs are the most complete testosterone food in existence — cholesterol, zinc, vitamin D, complete protein. Non-negotiable upgrade.</div>
-      </div>
-      <div class="rule">
-        <div class="rule-num">③</div>
-        <div class="rule-text"><strong>Add a handful of nuts.</strong> Almonds, walnuts, or Brazil nuts (Brazil nuts contain selenium — a known testosterone cofactor). 30g. Takes 10 seconds to add.</div>
-      </div>
-      <div class="rule">
-        <div class="rule-num">④</div>
-        <div class="rule-text"><strong>Optional: 1 banana.</strong> Potassium + B6, which supports testosterone synthesis. Easy, cheap, portable.</div>
-      </div>
-      <div style="font-family: var(--mono); font-size: 0.6rem; color: var(--text-dim); letter-spacing: 0.1em; margin-top: 1rem;">RESULT: ~40–45g protein, ~60g carbs, ~20g fat. Hormonal, satiating, no crash.</div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Lunch Structure — Controlled Meal #2</div>
-      <div class="grid-2">
-        <div>
-          <div style="font-family: var(--mono); font-size: 0.6rem; color: var(--accent); letter-spacing: 0.15em; margin-bottom: 0.75rem;">THE LUNCH TEMPLATE</div>
-          <div class="rule"><div class="rule-num">1/3</div><div class="rule-text"><strong>Protein source</strong> — minimum 35–40g: chicken breast, ground beef, eggs, canned fish (tuna/sardines), legumes. Non-negotiable at every meal.</div></div>
-          <div class="rule"><div class="rule-num">1/3</div><div class="rule-text"><strong>Complex carb</strong> — rice, potatoes, sweet potato, pasta. Fuels afternoon training and cognitive work. Don't skip carbs if you're training same day.</div></div>
-          <div class="rule"><div class="rule-num">1/3</div><div class="rule-text"><strong>Vegetables</strong> — at least one serving. Leafy greens (spinach, arugula) contain nitrates that improve athletic blood flow. Broccoli contains DIM which supports testosterone metabolism.</div></div>
-        </div>
-        <div>
-          <div style="font-family: var(--mono); font-size: 0.6rem; color: var(--accent); letter-spacing: 0.15em; margin-bottom: 0.75rem;">SIMPLEST RELIABLE OPTIONS</div>
-          <div class="rule"><div class="rule-num">A</div><div class="rule-text">Rice + chicken/beef + any vegetable. Simplest, most scalable option.</div></div>
-          <div class="rule"><div class="rule-num">B</div><div class="rule-text">Potatoes + eggs (4–5) + spinach. Cheap, fast, high testosterone profile.</div></div>
-          <div class="rule"><div class="rule-num">C</div><div class="rule-text">Pasta + tuna/sardines + olive oil + tomatoes. 10-minute prep, excellent fat profile.</div></div>
-          <div class="rule"><div class="rule-num">D</div><div class="rule-text">Whole grain bread + peanut butter + banana + protein shake. When time is zero.</div></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Dinner — Uncontrolled Meal Strategy</div>
-      <div class="rule">
-        <div class="rule-num">01</div>
-        <div class="rule-text"><strong>You cannot control dinner, so don't stress it.</strong> Stress about an uncontrolled variable is a net negative. Eat what's available. Prioritize protein and vegetables when possible.</div>
-      </div>
-      <div class="rule">
-        <div class="rule-num">02</div>
-        <div class="rule-text"><strong>One rule: always add protein if possible.</strong> If dinner is carb-heavy, add an egg or some meat. If it's genuinely lacking protein, have a protein shake after.</div>
-      </div>
-      <div class="rule">
-        <div class="rule-num">03</div>
-        <div class="rule-text"><strong>Eat dinner ≥ 2 hours before bed</strong> when possible. Heavy eating close to sleep time disrupts sleep quality and growth hormone release. This is worth navigating within your household constraints.</div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Simple Nutrition Rules — The Short List</div>
-      <div class="grid-2">
-        <div>
-          <div style="font-family: var(--mono); font-size: 0.6rem; color: var(--green); letter-spacing: 0.15em; margin-bottom: 0.75rem;">ALWAYS DO</div>
-          <div class="rule"><div class="rule-num">✓</div><div class="rule-text">Protein at every meal you control (35g+)</div></div>
-          <div class="rule"><div class="rule-num">✓</div><div class="rule-text">Whole eggs daily</div></div>
-          <div class="rule"><div class="rule-num">✓</div><div class="rule-text">Dietary fat at each meal (nuts, egg yolks, meat fat, olive oil)</div></div>
-          <div class="rule"><div class="rule-num">✓</div><div class="rule-text">2–3L water daily</div></div>
-          <div class="rule"><div class="rule-num">✓</div><div class="rule-text">Eat enough — do not undereat on heavy training days</div></div>
-        </div>
-        <div>
-          <div style="font-family: var(--mono); font-size: 0.6rem; color: var(--red); letter-spacing: 0.15em; margin-bottom: 0.75rem;">MINIMIZE</div>
-          <div class="rule"><div class="rule-num">✕</div><div class="rule-text">Ultra-processed snacks and fast food (cortisol spike, hormonal disruption)</div></div>
-          <div class="rule"><div class="rule-num">✕</div><div class="rule-text">Alcohol — even moderate drinking measurably suppresses testosterone for 24–48h</div></div>
-          <div class="rule"><div class="rule-num">✕</div><div class="rule-text">Excessive sugar (spikes insulin, disrupts cortisol/testosterone ratio)</div></div>
-          <div class="rule"><div class="rule-num">✕</div><div class="rule-text">Skipping breakfast — fasting 16h+ chronically raises cortisol</div></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══════════════════════════════════════════════════════ -->
-  <!-- 06 — ENERGY MANAGEMENT -->
-  <!-- ═══════════════════════════════════════════════════════ -->
-  <section class="section" id="energy">
-    <div class="section-header">
-      <div class="section-tag">Module 06</div>
-      <div class="section-title">ENERGY MANAGEMENT</div>
-      <div class="section-subtitle">Burnout is not caused by doing too much. It's caused by doing too much without recovery. Here's how to sustain an elite schedule without breaking.</div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Burnout Prevention — Early Warning System</div>
-      <div class="highlight">
-        <p>You will not feel burnout coming until it's already happening. By that point, recovery takes weeks, not days. <strong>The system needs proactive recovery built in</strong>, not reactive rest after collapse. These signals tell you to pull back before the collapse:</p>
-      </div>
-      <div class="rule">
-        <div class="rule-num">⚠</div>
-        <div class="rule-text"><strong>Persistent morning grogginess despite 7.5h sleep</strong> — your body is under-recovered, not just tired from one bad night.</div>
-      </div>
-      <div class="rule">
-        <div class="rule-num">⚠</div>
-        <div class="rule-text"><strong>Training sessions that feel inexplicably hard</strong> — when weights that were easy last week feel crushing, it's not motivation. It's systemic fatigue.</div>
-      </div>
-      <div class="rule">
-        <div class="rule-num">⚠</div>
-        <div class="rule-text"><strong>Loss of interest in business or study</strong> — apathy toward goals you normally care about is a cortisol-dominance symptom, not laziness.</div>
-      </div>
-      <div class="rule">
-        <div class="rule-num">⚠</div>
-        <div class="rule-text"><strong>Irritability in relationship or with teammates</strong> — social friction increases when your nervous system is overloaded. This is a body signal, not a personality problem.</div>
-      </div>
-      <div class="rule">
-        <div class="rule-num">⚠</div>
-        <div class="rule-text"><strong>Getting sick frequently</strong> — chronic stress suppresses immune function. More than 2 colds in a season = your recovery is broken.</div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Recovery Protocols</div>
-      <div class="rule">
-        <div class="rule-num">01</div>
-        <div class="rule-text"><strong>Strategic napping: 15–20 min, not more.</strong> On days with afternoon windows (post-school, pre-volleyball), a 20-minute nap restores alertness equivalent to ~1–1.5h extra sleep. Set an alarm. 20 min max — longer creates sleep inertia and tanks evening performance.</div>
-      </div>
-      <div class="rule">
-        <div class="rule-num">02</div>
-        <div class="rule-text"><strong>Saturday is your recovery anchor.</strong> Drawing academy is mentally creative, not draining. After 12:30, no performance obligations. Protect this space. If you consistently fill Saturdays with "productivity," you'll be coasting on fumes by Thursday every week.</div>
-      </div>
-      <div class="rule">
-        <div class="rule-num">03</div>
-        <div class="rule-text"><strong>Monthly training deload.</strong> Every 4–6 weeks, reduce gym volume by 40%. Keep intensity but drop sets. This is not laziness — it's when your nervous system and hormonal system actually supercompensate. Most gains happen during deloads, not during peak training weeks.</div>
-      </div>
-      <div class="rule">
-        <div class="rule-num">04</div>
-        <div class="rule-text"><strong>Cold-warm shower contrast.</strong> After intense training sessions, 3 min warm → 1 min cold → 1 min warm → 30s cold. Reduces systemic inflammation, accelerates muscle recovery, and raises alertness for the rest of the day without caffeine.</div>
-      </div>
-      <div class="rule">
-        <div class="rule-num">05</div>
-        <div class="rule-text"><strong>No caffeine after 13:00.</strong> Caffeine's half-life is ~5–7 hours. Coffee at 15:00 = half a cup at 21:00. Even if you fall asleep fine, caffeine degrades sleep quality and reduces deep sleep cycles — which is where testosterone is primarily produced.</div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Stress Management — Cortisol Control</div>
-      <div class="highlight">
-        <p>Testosterone and cortisol are <strong>inversely related</strong>. When cortisol is chronically elevated — from poor sleep, overtraining, academic stress, relationship friction, or constant stimulation — testosterone drops. This is not a motivational issue. It is biochemistry. Your OS must manage cortisol as actively as it manages training load.</p>
-      </div>
-      <div class="rule">
-        <div class="rule-num">01</div>
-        <div class="rule-text"><strong>10-min evening walk.</strong> Post-dinner, no phone. Walking after eating improves insulin sensitivity and significantly reduces cortisol. Sounds minor — compounds over months.</div>
-      </div>
-      <div class="rule">
-        <div class="rule-num">02</div>
-        <div class="rule-text"><strong>No decision-making after 21:00.</strong> Willpower and decision quality decline sharply in the evening. Decisions made when fatigued generate cortisol and regret in equal measure. Schedule tomorrow before you wind down, then stop making decisions.</div>
-      </div>
-      <div class="rule">
-        <div class="rule-num">03</div>
-        <div class="rule-text"><strong>Drawing academy is your cortisol relief valve.</strong> Creative work that isn't performance-measured is deeply restorative. Don't treat it as something to optimize or rush through — it's actively recovering your nervous system.</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══════════════════════════════════════════════════════ -->
-  <!-- 07 — BUSINESS -->
-  <!-- ═══════════════════════════════════════════════════════ -->
-  <section class="section" id="business">
-    <div class="section-header">
-      <div class="section-tag">Module 07</div>
-      <div class="section-title">BUSINESS SYSTEM</div>
-      <div class="section-subtitle">Building and selling websites is a real business. Treat it as one. The number one reason side businesses fail isn't lack of time — it's treating the time like it doesn't count.</div>
-    </div>
-
-    <div class="warning">
-      <p><strong>HARD TRUTH:</strong> If you work on your business "whenever I have time," you will never build anything real. Every serious person who built something while studying or working did it through <strong>protected, scheduled, mandatory blocks</strong> — not through motivation and spare hours. Motivation is not a scheduling strategy. Time-blocking is.</p>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Business Block Architecture</div>
-      <div class="timeline">
-        <div class="tl-item">
-          <div class="tl-time">WED</div>
-          <div class="tl-bar"></div>
-          <div class="tl-content">
-            <div class="tl-label">Business Block #1 — 12:00 to 14:30</div>
-            <div class="tl-note">Your best weekly window. School ends 11:50. Volleyball prep starts 14:30. You have 2.5 focused hours. This is deep work time — no admin, no social media "research," no casual browsing. Build something, contact someone, close something.</div>
-          </div>
-        </div>
-        <div class="tl-item">
-          <div class="tl-time">SUN</div>
-          <div class="tl-bar"></div>
-          <div class="tl-content">
-            <div class="tl-label">Business Block #2 — 17:00 to 19:00</div>
-            <div class="tl-note">Post-gym recovery, then 2h of focused business work. Earlier in the day works if gym is done by 11:00. This block is protected — if matches are on Sunday, shift to earlier morning (08:00–10:00) before the match.</div>
-          </div>
-        </div>
-        <div class="tl-item">
-          <div class="tl-time">SAT</div>
-          <div class="tl-bar"></div>
-          <div class="tl-content">
-            <div class="tl-label">Optional: Administrative block — 13:00 to 14:00</div>
-            <div class="tl-note">After drawing academy. Use for low-cognitive business tasks only: emails, invoices, portfolio updates, client communication follow-ups. Not for deep building or coding. Protect deeper Saturday time for girlfriend or genuine rest.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Website Business — Operating Model</div>
-      <div class="rule">
-        <div class="rule-num">01</div>
-        <div class="rule-text"><strong>Productize your service immediately.</strong> "I build websites" is not a business. "I build 5-page professional websites for local tradespeople in 7 days, starting at €X" is a business. Narrow scope. Fixed deliverable. Clear price. You can sell the first; you can scale the second.</div>
-      </div>
-      <div class="rule">
-        <div class="rule-num">02</div>
-        <div class="rule-text"><strong>Your first 3 clients are the entire game right now.</strong> Don't build a perfect portfolio site. Don't brand yourself. Don't set up complex tooling. Get 3 paying clients. Show their results. That is your portfolio. Everything else is procrastination with extra steps.</div>
-      </div>
-      <div class="rule">
-        <div class="rule-num">03</div>
-        <div class="rule-text"><strong>Outreach is a non-negotiable in every business block.</strong> If you only build sites and never reach out, you're building a hobby. Every block should include at least 10 minutes of outreach — cold email, Instagram DM, LinkedIn, local business visits. The pipeline must always be moving.</div>
-      </div>
-      <div class="rule">
-        <div class="rule-num">04</div>
-        <div class="rule-text"><strong>Build with leverage — templates, components, page builders.</strong> You are time-constrained. Custom code from scratch for €800 is not viable. Use Webflow, Framer, or WordPress with a premium theme. Build a reusable template system. Deliver in 5–7 days. This is where the business becomes scalable.</div>
-      </div>
-      <div class="rule">
-        <div class="rule-num">05</div>
-        <div class="rule-text"><strong>Weekly business goal: one specific output.</strong> Every Monday morning, write one concrete deliverable for the week: "Contact 20 local restaurants" or "Finish homepage for client X" or "Send 3 proposals." Not a mood, not a direction. A deliverable.</div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Focus Rules for Business Sessions</div>
-      <div class="rule"><div class="rule-num">—</div><div class="rule-text">Write your <strong>single task</strong> for the session before it starts. Not "work on business." Something like: "Write 3 outreach emails to local restaurants."</div></div>
-      <div class="rule"><div class="rule-num">—</div><div class="rule-text">Phone away. Email closed. Only the tool you need for the task is open.</div></div>
-      <div class="rule"><div class="rule-num">—</div><div class="rule-text">Timer on for the full block. When the timer ends, stop — even mid-sentence. This trains your brain to work with urgency within the window.</div></div>
-      <div class="rule"><div class="rule-num">—</div><div class="rule-text">At session end, write tomorrow's first action. Never leave a business session without knowing exactly what comes next. The biggest momentum killer is starting the next session by trying to remember where you were.</div></div>
-    </div>
-  </section>
-
-  <!-- ═══════════════════════════════════════════════════════ -->
-  <!-- 08 — RELATIONSHIP -->
-  <!-- ═══════════════════════════════════════════════════════ -->
-  <section class="section" id="relationship">
-    <div class="section-header">
-      <div class="section-tag">Module 08</div>
-      <div class="section-title">RELATIONSHIP INTEGRATION</div>
-      <div class="section-subtitle">A relationship that supports your goals is an asset. One that drains without boundaries is a liability. The difference is almost never about the person — it's about the structure.</div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Scheduled Time Architecture</div>
-      <div class="highlight">
-        <p>The counterintuitive truth about relationships in a high-performance schedule: <strong>scheduled time beats spontaneous time</strong>. Spontaneous time often means anxious time — you're half-present because you're aware of what you "should" be doing. Scheduled, protected time means you show up fully because you've already decided this is where your attention belongs right now.</p>
-      </div>
-      <div class="rule">
-        <div class="rule-num">01</div>
-        <div class="rule-text"><strong>Saturday is the primary relationship day.</strong> Drawing academy ends at 12:30. The afternoon and evening are for your girlfriend. Suggest this structure to her explicitly — not as a constraint, but as a commitment: "Saturday afternoon is always yours."</div>
-      </div>
-      <div class="rule">
-        <div class="rule-num">02</div>
-        <div class="rule-text"><strong>Define Sunday's role in advance.</strong> Sunday has gym, study, and business. It should not be a default relationship day unless you've planned for it. Transparency here prevents friction — if she expects Sunday and you're deep in a study block, that's a conflict that could have been avoided.</div>
-      </div>
-      <div class="rule">
-        <div class="rule-num">03</div>
-        <div class="rule-text"><strong>Short, high-quality contact during the week beats nothing.</strong> You don't need to see her every evening. A 20-minute genuine conversation during your free window beats a distracted 2-hour visit where you're mentally elsewhere. Quality of attention outweighs quantity of time.</div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">The Presence Rule</div>
-      <div class="highlight">
-        <p><strong>When it's her time, your phone is away and your ambitions are parked.</strong> Not because the business doesn't matter — but because the ability to be present is itself a high-performance skill. People who cannot disconnect and be present are not high performers. They're anxious. The goal is to be able to fully switch modes. Work → Present. Gym → Present. Relationship → Present.</p>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Long-Term Sustainability Rules</div>
-      <div class="rule">
-        <div class="rule-num">01</div>
-        <div class="rule-text"><strong>Communicate the OS, not the results.</strong> Tell her what you're building and why the schedule matters. A partner who understands the "why" becomes an ally. A partner who only sees the "you're always busy" becomes friction.</div>
-      </div>
-      <div class="rule">
-        <div class="rule-num">02</div>
-        <div class="rule-text"><strong>Protect her time when you said you would.</strong> Reliability is the core competency here. Don't cancel Saturday plans for "an important business thing" unless it's genuinely exceptional. Patterns of cancellation destroy trust faster than any single incident.</div>
-      </div>
-      <div class="rule">
-        <div class="rule-num">03</div>
-        <div class="rule-text"><strong>Review the OS together quarterly.</strong> As your schedule shifts (exams, tournaments, client deadlines), recalibrate what the relationship time looks like. Relationships that don't adapt to changing life phases generate silent resentment.</div>
-      </div>
-      <div class="rule">
-        <div class="rule-num">04</div>
-        <div class="rule-text"><strong>A healthy relationship reduces stress — it doesn't add it.</strong> If your relationship is consistently a source of anxiety, distraction, or guilt, that is a cortisol problem as much as it is an emotional one. The solution is not more time sacrificed — it's better structure, clearer communication, and more reliable presence when you are there.</div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Weekly Relationship Summary</div>
-      <div class="grid-2">
-        <div>
-          <div style="font-family: var(--mono); font-size: 0.6rem; color: var(--accent); letter-spacing: 0.15em; margin-bottom: 0.75rem;">COMMITTED TIME</div>
-          <div class="rule"><div class="rule-num">SAT</div><div class="rule-text"><strong>Saturday 13:00–20:00+</strong> — primary dedicated time. Full presence, no business, no study.</div></div>
-          <div class="rule"><div class="rule-num">WK</div><div class="rule-text"><strong>Weekday contact</strong> — 20–30 min daily communication (call, message). Consistent, not obsessive.</div></div>
-        </div>
-        <div>
-          <div style="font-family: var(--mono); font-size: 0.6rem; color: var(--text-dim); letter-spacing: 0.15em; margin-bottom: 0.75rem;">FLEXIBLE / MATCH-DEPENDENT</div>
-          <div class="rule"><div class="rule-num">SUN</div><div class="rule-text">Sunday depends on match schedule. If no match, can include a shared morning or evening meal — not a full day.</div></div>
-          <div class="rule"><div class="rule-num">FRI</div><div class="rule-text">Friday evenings occasionally — after gym and recovery. Energy-dependent. Not a fixed obligation.</div></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-</div>
+</div><!-- end main -->
 
 <script>
-  function show(id) {
-    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    const btns = document.querySelectorAll('.nav-btn');
-    const ids = ['system','weekly','daily','training','nutrition','energy','business','relationship'];
-    btns[ids.indexOf(id)].classList.add('active');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-</script>
+// ── NAV ──────────────────────────────────────────────────────────
+function show(id) {
+  document.querySelectorAll('.sec').forEach(s => s.classList.remove('on'));
+  document.querySelectorAll('.nb').forEach(b => b.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  const ids = ['rules','reality','schedule','training','nutrition','failure'];
+  document.querySelectorAll('.nb')[ids.indexOf(id)].classList.add('on');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
 
+function showDay(id) {
+  document.querySelectorAll('.day-view').forEach(d => d.classList.remove('on'));
+  document.querySelectorAll('.dnb').forEach(b => b.classList.remove('on'));
+  document.getElementById('day-'+id).classList.add('on');
+  const ids = ['mon','tue','wed','thu','fri','sat','sun'];
+  document.querySelectorAll('.dnb')[ids.indexOf(id)].classList.add('on');
+}
+
+// ── SCHEDULE DATA ─────────────────────────────────────────────────
+// Format: [startTime, durationMin, label, category, note, isKeyBlock]
+// isKeyBlock = true → show ★ indicator
+
+const schedules = {
+  mon: [
+    ['07:00', 15, 'Wake + Hydrate', 'morning', '500ml water immediately. Open curtains — morning sunlight anchors circadian rhythm.', false],
+    ['07:15', 25, 'Breakfast', 'meal', '3 eggs scrambled + 60g oats + 30g nuts + coffee. Pre-prepped from Sunday batch cook.', false],
+    ['07:40', 30, 'Commute to school', 'commute', 'Use for mental review: what are the 3 things you must do today? No social media.', false],
+    ['08:10', 5, 'Settle in', 'trans', 'Arrive, desk, water bottle.', false],
+    ['08:15', 105, 'School — Morning Block', 'school', 'Active participation. Ask questions. The more you engage in class, the less review you need later.', false],
+    ['10:00', 15, 'School Break', 'recovery', 'Water, walk, brief movement. No phone.', false],
+    ['10:15', 105, 'School — Block 2', 'school', '', false],
+    ['12:00', 20, 'Lunch', 'meal', 'Packed lunch: protein + carb + veg. Eat without phone. Eat outside if possible (vitamin D).', false],
+    ['12:20', 110, 'School — Afternoon Block', 'school', 'Afternoon focus drops. Stay engaged. Take short notes on things to review later.', false],
+    ['15:10', 30, 'Commute home', 'commute', 'No phone. Decompress mentally from school. Think through study block plan.', false],
+    ['15:40', 15, 'Arrive: change + pre-study snack', 'trans', 'Banana + Greek yogurt or similar. 200ml water. Change out of school clothes.', false],
+    ['15:55', 60, '★ DEEP STUDY — Active Recall', 'deep', 'Close notes. Brain dump everything you know on today\'s topic. Then open notes and fill gaps. Pomodoro: 50min focus, 10min break. Phone in another room.', true],
+    ['16:55', 15, 'Pre-gym transition', 'trans', 'Pack gym bag, change, small carb snack (banana). Hydrate 300ml.', false],
+    ['17:10', 75, 'GYM — Upper Pull', 'gym', 'Weighted Pull-Ups 5×4-6 → Barbell Row 4×6-8 → Cable Row 3×10 → Face Pulls 3×15 → Bicep Curl 3×10. Cap at 80 min hard.', false],
+    ['18:25', 20, 'Post-gym commute / cooldown', 'commute', 'Walk or transit home. Let heart rate settle.', false],
+    ['18:45', 20, 'Shower', 'recovery', 'Contrast: 3min warm → 1min cold → 1min warm → 30s cold. Reduces inflammation.', false],
+    ['19:05', 45, 'Dinner', 'meal', 'Uncontrolled — eat what\'s available. If protein is low, add eggs or a glass of milk.', false],
+    ['19:50', 45, 'READING', 'reading', 'Focused reading — book, not phone content. Comfortable position, good light. Annotate if non-fiction.', true],
+    ['20:35', 30, 'LIGHT STUDY — Anki / Review', 'light', 'Spaced repetition cards only. No new material. Low cognitive load. Review cards from last 3 days.', false],
+    ['21:05', 10, 'Business: task log + plan', 'business', 'Open business notebook. Log any ideas from the day. Set tomorrow\'s single task. 10 min max.', false],
+    ['21:15', 45, 'Wind-down — No screens', 'recovery', 'Dim lights. Journal 5 min: what went well, what tomorrow\'s priorities are. No phone in bedroom from 21:30.', false],
+    ['22:00', 30, 'In bed → lights out', 'sleep', 'Read fiction or lie in darkness. Aim asleep by 22:30.', false],
+    ['22:30', 510, 'SLEEP — 8.5h', 'sleep', 'Target: asleep 22:30, wake 07:00.', false],
+  ],
+  tue: [
+    ['07:00', 15, 'Wake + Hydrate', 'morning', '500ml water. Same protocol every day — circadian consistency.', false],
+    ['07:15', 25, 'Breakfast', 'meal', '3 eggs + oats + nuts. Quick prep.', false],
+    ['07:40', 30, 'Commute to school', 'commute', 'Mental review of the day. Volleyball tonight — pack gym/volley bag before leaving.', false],
+    ['08:10', 5, 'Settle in', 'trans', '', false],
+    ['08:15', 105, 'School — Morning Block', 'school', '', false],
+    ['10:00', 15, 'School Break', 'recovery', 'Water. Brief walk.', false],
+    ['10:15', 105, 'School — Block 2', 'school', '', false],
+    ['12:00', 20, 'Lunch', 'meal', 'Protein-heavy today — volleyball tonight requires glycogen. Eat carbs.', false],
+    ['12:20', 220, 'School — Afternoon Block', 'school', 'Longest school day. Stay sharp in last 2 hours.', false],
+    ['16:00', 30, 'Commute home', 'commute', 'Decompress. Volleyball is in 4 hours. Protect energy.', false],
+    ['16:30', 15, 'Arrive: change + snack', 'trans', 'Snack: banana + peanut butter. Hydrate well — volleyball at 20:00.', false],
+    ['16:45', 60, '★ DEEP STUDY — Active Recall', 'deep', 'Your only deep study window today. One subject, active recall method. 50min Pomodoro. Full focus.', true],
+    ['17:45', 10, 'Break', 'recovery', '5-min walk. Water.', false],
+    ['17:55', 45, 'READING', 'reading', 'Non-fiction or novel. Lower intensity. Absorb, no pressure to "study."', true],
+    ['18:40', 40, 'Dinner (early — before volleyball)', 'meal', 'Eat now. Larger carb-focused meal. Don\'t eat within 1h of volleyball start.', false],
+    ['19:20', 10, 'Pack volleyball bag / kit check', 'trans', 'Water bottles, knee pads, shoes. Ready to leave at 19:30.', false],
+    ['19:30', 30, 'Commute to volleyball', 'commute', 'Mentally switch mode. You\'re an athlete now, not a student.', false],
+    ['20:00', 120, 'VOLLEYBALL TRAINING', 'volleyball', '2h training. Give full effort. This is athletic development time.', false],
+    ['22:00', 30, 'Commute home', 'commute', 'Begin decompressing. Don\'t replay the training obsessively. Let it go.', false],
+    ['22:30', 15, 'Recovery snack + hydrate', 'meal', 'Glass of milk + banana. No heavy meals. Replenish glycogen lightly.', false],
+    ['22:45', 15, 'Wind-down (minimal)', 'recovery', 'Quick. No phone. Lights low. Tomorrow starts at 07:00.', false],
+    ['23:00', 480, 'SLEEP — 8h (tight)', 'sleep', 'This is the tightest sleep of the week. Wednesday compensates with 9h.', false],
+  ],
+  wed: [
+    ['07:00', 15, 'Wake + Hydrate', 'morning', 'Same protocol. School ends at 11:50 today — the afternoon is gold.', false],
+    ['07:15', 25, 'Breakfast', 'meal', 'Full breakfast — slightly larger. Coaching is 5h. You need fuel.', false],
+    ['07:40', 30, 'Commute to school', 'commute', '', false],
+    ['08:10', 5, 'Settle in', 'trans', '', false],
+    ['08:15', 215, 'School — Full Morning', 'school', 'Half-day. Be fully present. School ends 11:50.', false],
+    ['11:50', 30, 'Commute home', 'commute', 'You\'re home by 12:20. What comes next is the most valuable window of your week.', false],
+    ['12:20', 40, 'Lunch at home', 'meal', 'Full meal. Protein + carbs + veg. Eat properly — coaching starts at 15:00.', false],
+    ['13:00', 90, '★★ BUSINESS BLOCK — Deep Work', 'business', 'YOUR BEST BUSINESS WINDOW ALL WEEK. Single pre-defined task. No admin, no "research," no social media. Build something or contact someone. Deliverable defined before you open the computer.', true],
+    ['14:30', 15, 'Pack volleyball coaching kit', 'trans', 'Water, coaching notes, shoes. Leave by 14:30 for 15:00 arrival.', false],
+    ['14:30', 30, 'Commute to volleyball venue', 'commute', '', false],
+    ['15:00', 300, 'VOLLEYBALL COACHING — 5h', 'volleyball', 'Full coaching session. You are responsible for others\' development. Give full presence. This is leadership work, not just sport.', false],
+    ['20:00', 30, 'Commute home', 'commute', 'Decompress. Do not review the session obsessively. Let the mind rest.', false],
+    ['20:30', 45, 'Dinner + decompress', 'meal', 'Eat well. You\'ve been on your feet for 5 hours. Protein priority.', false],
+    ['21:15', 30, 'Light reading (non-study)', 'reading', 'Fiction or non-demanding reading only. No notes. No study. Brain is at capacity.', false],
+    ['21:45', 15, 'Wind-down', 'recovery', 'Prep tomorrow\'s breakfast (overnight oats). 5min journal. Phone away.', false],
+    ['22:00', 540, 'SLEEP — 9h (recovery priority)', 'sleep', '9 hours. Non-negotiable. This is where you recover from the hardest day of your week. Wednesday sleep quality determines Thursday and Friday output.', false],
+  ],
+  thu: [
+    ['07:00', 15, 'Wake + Hydrate', 'morning', 'Same alarm. No exceptions. The 90-min study block before school is only available if you wake at 07:00.', false],
+    ['07:15', 30, 'Full Breakfast — more time today', 'meal', '3 eggs + oats + nuts + banana. Sit and eat properly. No rush — school doesn\'t start until 09:55.', false],
+    ['07:45', 90, '★★ DEEP STUDY — PRIME WINDOW', 'deep', 'HIGHEST VALUE BLOCK OF THE WEEK. Morning peak cortisol + no school pressure + no prior fatigue. Your hardest subject goes here. Active recall. Closed notes first. No distractions. This block alone can change your academic performance.', true],
+    ['09:15', 10, 'Pack bag for school', 'trans', 'Brief transition. Review what you just studied in 60 seconds (retrieval consolidation).', false],
+    ['09:25', 30, 'Commute to school', 'commute', 'Use 10 min to mentally recap the study session. What were the 3 key things you learned?', false],
+    ['09:55', 155, 'School — Morning Block', 'school', '', false],
+    ['12:30', 30, 'Lunch', 'meal', 'Protein + carbs. Gym is at 16:45 today.', false],
+    ['13:00', 180, 'School — Afternoon Block', 'school', '', false],
+    ['16:00', 30, 'Commute home', 'commute', 'Energy will be moderate. Gym is next — protect mental state.', false],
+    ['16:30', 15, 'Arrive: change + pre-gym snack', 'trans', 'Banana + small protein. Change. Hydrate.', false],
+    ['16:45', 75, 'GYM — Upper Push', 'gym', 'Bench Press OR OHP 4×4-6 → Incline DB Press 3×8 → Lateral Raises 4×15 → Tricep Dips 3×10 → Face Pulls 2×15. NO legs — day after 5h coaching.', false],
+    ['18:00', 15, 'Post-gym cooldown', 'recovery', 'Walk, stretch. Let CNS recover.', false],
+    ['18:15', 20, 'Shower', 'recovery', 'Contrast shower if energy is low.', false],
+    ['18:35', 45, 'Dinner', 'meal', 'Largest meal of Thursday — post-gym + recovery from Wednesday.', false],
+    ['19:20', 45, 'READING', 'reading', '45 min focused reading. You\'ve had a productive day — this is a reward.', true],
+    ['20:05', 30, 'LIGHT STUDY — Anki review', 'light', 'Spaced repetition only. Review cards from Monday + Tuesday material. 20–30 cards max.', false],
+    ['20:35', 30, 'BUSINESS — outreach / planning', 'business', 'Send outreach messages, respond to clients, update pipeline. Not deep building — that\'s Wednesday. This is admin and momentum.', false],
+    ['21:05', 45, 'Wind-down', 'recovery', 'Dim lights, no screens. Prep tomorrow: school bag, breakfast, check schedule.', false],
+    ['21:50', 10, 'In bed', 'sleep', '', false],
+    ['22:00', 540, 'SLEEP — 8.5–9h', 'sleep', 'One of your best sleep nights. Well-deserved.', false],
+  ],
+  fri: [
+    ['07:00', 15, 'Wake + Hydrate', 'morning', 'End of school week. Maintain the protocol regardless.', false],
+    ['07:15', 25, 'Breakfast', 'meal', 'Standard breakfast. Coffee allowed — last caffeine of the day.', false],
+    ['07:40', 30, 'Commute to school', 'commute', '', false],
+    ['08:10', 5, 'Settle in', 'trans', '', false],
+    ['08:15', 105, 'School — Morning Block', 'school', '', false],
+    ['10:00', 15, 'School Break', 'recovery', '', false],
+    ['10:15', 105, 'School — Block 2', 'school', '', false],
+    ['12:00', 20, 'Lunch', 'meal', 'End-of-week: if school canteen has something good, eat it. Don\'t stress.', false],
+    ['12:20', 170, 'School — Afternoon Block', 'school', 'Last school block of the week. Stay engaged — Friday is when most people mentally check out.', false],
+    ['15:10', 30, 'Commute home', 'commute', 'Decompress. Good week.', false],
+    ['15:40', 15, 'Arrive: change + pre-gym snack', 'trans', 'Change, snack, hydrate. Gym now — not after a rest.', false],
+    ['15:55', 75, 'GYM — Lower Athletic', 'gym', 'Deadlift 4×4 → Goblet Squat 3×10 → Hip Thrust 3×12 → Jump Squat 3×8 → Single-Leg Work. Moderate intensity — end of week, don\'t chase PRs.', false],
+    ['17:10', 20, 'Post-gym recovery', 'recovery', 'Cooldown walk or stretch. Week\'s training is done.', false],
+    ['17:30', 20, 'Shower', 'recovery', '', false],
+    ['17:50', 45, 'Dinner', 'meal', '', false],
+    ['18:35', 60, 'READING — Extended', 'reading', '60 min. Longest reading block of the weekday. No pressure to study — it\'s Friday. Just read.', true],
+    ['19:35', 30, 'LIGHT STUDY — Anki review', 'light', 'Final review session of the week. Consolidate what you studied Monday–Thursday.', false],
+    ['20:05', 10, 'Business: weekly output review', 'business', 'Did you complete Wednesday\'s defined task? What\'s the priority next week? 10 min only.', false],
+    ['20:15', 45, 'Free time — social / girlfriend call / leisure', 'free', 'Earned. Use it without guilt.', false],
+    ['21:00', 30, 'Wind-down', 'recovery', 'Slightly more relaxed Friday wind-down. Still no screens by 21:30.', false],
+    ['21:30', 30, 'In bed — read fiction or rest', 'sleep', '', false],
+    ['22:00', 540, 'SLEEP — 9h (slight buffer)', 'sleep', 'Sleep 22:00–07:00. Extra recovery buffer for the weekend.', false],
+  ],
+  sat: [
+    ['07:00', 15, 'Wake + Hydrate', 'morning', 'Consistent wake time — same as weekdays. Circadian rhythm doesn\'t know it\'s Saturday.', false],
+    ['07:15', 45, 'Full Breakfast — relaxed', 'meal', 'Take your time. Larger breakfast. Eggs + oats + fruit. No rush.', false],
+    ['08:00', 30, 'Prep + commute to Drawing Academy', 'commute', 'Pack materials. 30 min transit.', false],
+    ['08:30', 30, 'Arrive + settle in', 'trans', '', false],
+    ['09:00', 210, 'DRAWING ACADEMY', 'drawing', 'Creative work. Do not optimize this. Do not use it to plan the rest of your day. Be present in the creative process. This is your nervous system\'s recovery valve.', false],
+    ['12:30', 30, 'Commute home', 'commute', '', false],
+    ['13:00', 45, 'Lunch', 'meal', 'Full lunch. Pre-match nutrition: carb-focused.', false],
+    ['13:45', 90, 'READING — Extended Block', 'reading', 'Best reading block of the week. No school pressure, no gym. Sit and read for 90 minutes. Saturday is when you actually make reading progress.', true],
+    ['15:15', 15, 'Prep for match', 'trans', 'Kit, water, travel plan.', false],
+    ['15:30', 30, 'Commute to match', 'commute', '', false],
+    ['16:00', 90, 'VOLLEYBALL MATCH', 'volleyball', 'First weekend match. Give full effort. This is why you train.', false],
+    ['17:30', 30, 'Post-match commute home', 'commute', '', false],
+    ['18:00', 30, 'Shower + recovery', 'recovery', 'Contrast shower. Let body temperature normalize.', false],
+    ['18:30', 45, 'Dinner', 'meal', 'Recovery dinner — protein + carbs. Don\'t skip.', false],
+    ['19:15', 165, 'GIRLFRIEND TIME — Full Presence', 'gf', 'Phone away. Plans decided together in advance. Be fully present. This is the relationship investment block. What you do is flexible. That you\'re actually here is non-negotiable.', false],
+    ['22:00', 30, 'Wind-down', 'recovery', '', false],
+    ['22:30', 30, 'In bed', 'sleep', '', false],
+    ['23:00', 480, 'SLEEP — 8h', 'sleep', 'Sunday is the most important day — prime study + gym. Sleep well.', false],
+  ],
+  sun: [
+    ['07:00', 15, 'Wake + Hydrate', 'morning', 'Best day of the week starts now. Two peak blocks ahead.', false],
+    ['07:15', 30, 'Light pre-study breakfast', 'meal', 'Smaller breakfast before study — eggs + oats. Save appetite for post-gym meal.', false],
+    ['07:45', 90, '★★ DEEP STUDY — SECOND PRIME WINDOW', 'deep', 'Sunday morning = second best cognitive block of your week (after Thursday). No school, fresh from Saturday rest, gym not yet done. Your second hardest subject goes here. Active recall only. 75-min Pomodoro.', true],
+    ['09:15', 10, 'Pre-gym prep', 'trans', 'Change. Pack gym bag. Pre-workout snack: banana.', false],
+    ['09:25', 85, 'GYM — Lower Body Heavy ★', 'gym', 'PRIORITY SESSION. Back Squat 5×3-5 (heaviest loading of week) → Romanian Deadlift 3×8 → Bulgarian Split Squat 3×8 → Leg Curl 3×10 → Calf Raises 3×15. Core finisher: Hanging Leg Raise 3×12. This session drives the testosterone signal for the week.', true],
+    ['10:50', 15, 'Post-gym cooldown + stretch', 'recovery', 'Don\'t rush this. Light stretching, 5 min walk, breathe.', false],
+    ['11:05', 25, 'Shower', 'recovery', '', false],
+    ['11:30', 60, 'Post-workout meal — full nutrition', 'meal', 'Largest meal of Sunday. Protein + carbs + fat. This fuels recovery for the next 48h. Take your time.', false],
+    ['12:30', 90, 'READING — Prime Block', 'reading', '90 minutes. Second best reading block of the week (after Saturday). Comfortable, no pressure, full absorption.', true],
+    ['14:00', 30, 'Prep + commute to match', 'commute', '', false],
+    ['14:30', 90, 'VOLLEYBALL MATCH', 'volleyball', 'Second weekend match. Body is warmer from this morning\'s gym. Perform.', false],
+    ['16:00', 30, 'Commute home', 'commute', '', false],
+    ['16:30', 30, 'Recovery: rest + hydrate', 'recovery', 'Horizontal rest if needed. 20-min nap acceptable — set alarm.', false],
+    ['17:00', 60, '★ BUSINESS BLOCK', 'business', '60 minutes of focused business work. This is your second business block of the week. Build, contact, or deliver — one concrete output.', true],
+    ['18:00', 45, 'Dinner', 'meal', '', false],
+    ['18:45', 45, 'LIGHT STUDY — weekly review + Anki', 'light', 'Review the week\'s material at high level. What are the 5 most important things you learned this week? Anki review of critical cards.', false],
+    ['19:30', 30, 'Week planning — next 7 days', 'light', 'Review the coming week\'s schedule. Define Tuesday\'s study subject, Wednesday\'s business task, Thursday\'s study subject. 30 min of planning prevents 3h of drift.', false],
+    ['20:00', 30, 'Wind-down + prep Monday', 'recovery', 'Lay out gym bag, school bag. Prep overnight oats. Set single alarm: 07:00.', false],
+    ['20:30', 30, 'In bed — read or rest', 'sleep', 'Earliest bedtime of the week. Sunday sleep quality sets Monday performance.', false],
+    ['21:00', 600, 'SLEEP — 10h (recovery anchor)', 'sleep', 'In bed 20:30, asleep ~21:00, wake 07:00. This is the longest sleep of the week and the most important. It determines your testosterone level, cognitive performance, and athletic output for Monday through Wednesday.', false],
+  ]
+};
+
+// ── RENDER TIMELINE ───────────────────────────────────────────────
+function timeToMin(t) {
+  const [h,m] = t.split(':').map(Number);
+  return h*60+m;
+}
+
+function addMin(t, min) {
+  const total = timeToMin(t)+min;
+  return `${String(Math.floor(total/60)).padStart(2,'0')}:${String(total%60).padStart(2,'0')}`;
+}
+
+const catColors = {
+  morning:'morning', meal:'meal', commute:'commute', school:'school',
+  gym:'gym', volleyball:'volleyball', deep:'deep', light:'light',
+  reading:'reading', business:'business', recovery:'recovery', sleep:'sleep',
+  drawing:'drawing', gf:'gf', free:'free', trans:'trans'
+};
+
+function renderTimeline(dayKey) {
+  const container = document.getElementById('tl-'+dayKey);
+  if (!container) return;
+  const data = schedules[dayKey];
+  let html = '';
+  data.forEach(([start, dur, label, cat, note, isKey]) => {
+    const end = addMin(start, dur);
+    const durLabel = dur >= 60 ? `${Math.floor(dur/60)}h${dur%60>0?(dur%60+'m'):''}` : `${dur}min`;
+    const catClass = `cat-${catColors[cat]||'trans'}`;
+    const lcClass = `lc-${catColors[cat]||'trans'}`;
+    html += `
+    <div class="blk">
+      <div class="blk-time">${start}<br><span style="font-size:0.48rem;opacity:0.5">→${end}</span></div>
+      <div class="blk-bar ${catClass}"></div>
+      <div class="blk-content">
+        <div class="blk-label">
+          <span class="${lcClass}">${isKey ? '★ ' : ''}${label}</span>
+          <span class="blk-dur">${durLabel}</span>
+        </div>
+        ${note ? `<div class="blk-note">${note}</div>` : ''}
+      </div>
+    </div>`;
+  });
+  container.innerHTML = html;
+}
+
+// Render all days on load
+['mon','tue','wed','thu','fri','sat','sun'].forEach(d => renderTimeline(d));
+</script>
 </body>
 </html>
